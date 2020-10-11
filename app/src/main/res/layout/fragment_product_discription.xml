@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorAccent"
+    android:elevation="3dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    tools:context=".fragment.ProductDiscriptionFragment">
+
+    <TextView
+        android:id="@+id/product_discription_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16sp"
+        android:textColor="#000000"
+
+        android:text="Description Description Description Description Description Description
+
+        Description Description Description Description Description Description Description
+         Description Description Description Description Description Description Description
+         Description Description Description Description Description Description Description
+         Description Description Description Description Description Description Description
+          Description Description Description Description Description Description Description
+           Description Description Description Description Description Description" />
+</FrameLayout>

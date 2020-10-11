@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/textView20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/layout_background"
+        android:elevation="4dp"
+        android:padding="5dp"
+        android:text="Your Current orders"
+        android:textColor="#000"
+        android:textStyle="bold"
+        app:layout_constraintCircleRadius="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.mikhaellopez.circularimageview.CircularImageView
+        android:id="@+id/circularImageView"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="8dp"
+        android:elevation="4dp"
+        android:src="@drawable/mobile_img"
+        android:scaleType="fitCenter"
+        app:civ_border_color="#203ACC"
+        app:civ_border_width="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView20" />
+
+    <TextView
+        android:id="@+id/textView29"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/layout_background"
+        android:backgroundTint="#203ACC"
+        android:padding="16dp"
+        android:text="OUT FOR DELIVERY"
+        android:textColor="@color/colorAccent"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/circularImageView" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/layout_background"
+        android:elevation="3dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView29">
+
+        <ImageView
+            android:id="@+id/imageView25"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="0"
+            android:tint="@color/successGreen"
+            android:translationX="30dp"
+            app:srcCompat="@drawable/selected_dot" />
+
+        <ProgressBar
+            android:id="@+id/progressBar10"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="5"
+            android:progress="100"
+            android:progressTint="@color/successGreen"
+            android:translationX="20dp" />
+
+        <ImageView
+            android:id="@+id/imageView29"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="0"
+            android:tint="@color/successGreen"
+            android:translationX="10dp"
+            app:srcCompat="@drawable/selected_dot" />
+
+        <ProgressBar
+            android:id="@+id/progressBar11"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="5"
+            android:progress="100"
+            android:progressTint="@color/successGreen" />
+
+        <ImageView
+            android:id="@+id/imageView26"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="0"
+            android:tint="@color/successGreen"
+            android:translationX="-10dp"
+            app:srcCompat="@drawable/selected_dot" />
+
+        <ProgressBar
+            android:id="@+id/progressBar12"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="5"
+            android:progress="100"
+            android:progressTint="@color/successGreen"
+            android:translationX="-20dp" />
+
+        <ImageView
+            android:id="@+id/imageView27"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="0"
+            android:tint="@color/successGreen"
+            android:translationX="-30dp"
+            app:srcCompat="@drawable/selected_dot" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
