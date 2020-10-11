@@ -63,6 +63,9 @@ public class DbQueries {
     public static List<String> cartList = new ArrayList<>();
     public static List<CartItemModel> cartItemModelList = new ArrayList<>();
 
+//    public static List<String> cartList = new ArrayList<>();
+//    public static List<CartItemModel> cartItemModelList = new ArrayList<>();
+
     public static List<AddressesModel> addressModelList = new ArrayList<>();
     public static int selectedAddress = -1;
 
@@ -217,10 +220,64 @@ public class DbQueries {
         });
     }
 
+    public static void loadCartList(final Context context, final Dialog dialog, final boolean loadProductData) {
+
+        cartList.clear();
+        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (long x = 0; x < (long) task.getResult().get("list size"); x++) {
+                        cartList.add(task.getResult().get("product id " + x).toString());
+
+                        if (DbQueries.cartList.contains(ProductDetailsActivity.productId)) {
+                            ProductDetailsActivity.ALREADY_ADDED_TO_CART = true;
+                        } else {
+                            ProductDetailsActivity.ALREADY_ADDED_TO_CART = false;
+                        }
+
+                        if (loadProductData) {
+                            cartItemModelList.clear();
+                            final String productId = task.getResult().get("product id " + x).toString();
+                            firebaseFirestore.collection("products").document(productId)
+                                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+
+                                        cartItemModelList.add(new CartItemModel(
+                                                CartItemModel.CART_ITEM,
+                                                productId,
+                                                task.getResult().get("product image 1").toString(),
+                                                task.getResult().get("product title").toString(),
+                                                (long) task.getResult().get("free coupens"),
+                                                task.getResult().get("product price").toString(),
+                                                task.getResult().get("cutted price").toString(),
+                                                1,
+                                                0,
+                                                0,
+                                                (boolean) task.getResult().get("cod")));
+
+                                        CartFragment.cartAdapter.notifyDataSetChanged();
+                                    } else {
+                                        Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                dialog.dismiss();
+            }
+        });
+    }
+
     public static void removeFromWishList(final int index, final Context context) {
         final String removedProductId = wishList.get(index);
         wishList.remove(index);
-
         Map<String, Object> updateWishList = new HashMap<>();
 
         for (int x = 0; x < wishList.size(); x++) {
@@ -247,6 +304,35 @@ public class DbQueries {
                     Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 ProductDetailsActivity.runningWishlistQuery = false;
+            }
+        });
+    }
+
+    public static void removeFromCart(final int index, final Context context) {
+        final String removedProductId = cartList.get(index);
+        cartList.remove(index);
+        Map<String, Object> updateCartList = new HashMap<>();
+
+        for (int x = 0; x < cartList.size(); x++) {
+            updateCartList.put("product id " + x, cartList.get(x));
+        }
+        updateCartList.put("list size", (long) cartList.size());
+
+        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
+                .set(updateCartList).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    if (cartItemModelList.size() != 0) {
+                        cartItemModelList.remove(index);
+                        CartFragment.cartAdapter.notifyDataSetChanged();
+                    }
+                    Toast.makeText(context, "Removed Successfully!", Toast.LENGTH_SHORT).show();
+                } else {
+                    cartList.add(index, removedProductId);
+                    Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                ProductDetailsActivity.runningCartQuery = false;
             }
         });
     }
@@ -280,116 +366,41 @@ public class DbQueries {
         }
     }
 
-    public static void loadCartList(final Context context, final Dialog dialog, final boolean loadProductData, final TextView bedgeCount) {
-        cartList.clear();
-        cartItemModelList.clear();
-        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
-                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (long x = 0; x < (long) task.getResult().get("list size"); x++) {
-                        cartList.add(task.getResult().get("product id " + x).toString());
-
-                        if (DbQueries.cartList.contains(ProductDetailsActivity.productId)) {
-                            ProductDetailsActivity.ALREADY_ADDED_TO_CART = true;
-                        } else {
-                            ProductDetailsActivity.ALREADY_ADDED_TO_CART = false;
-                        }
-                        if (loadProductData) {
-                            cartItemModelList.clear();
-                            final String productId = task.getResult().get("product id " + x).toString();
-                            firebaseFirestore.collection("products").document(productId)
-                                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    int index = 0;
-                                    if (task.isSuccessful()) {
-
-                                        if (cartList.size() >= 2) {
-                                            index = cartList.size() - 2;
-                                        }
-                                        cartItemModelList.add(index, new CartItemModel(
-                                                CartItemModel.CART_ITEM,
-                                                productId,
-                                                task.getResult().get("product image 1").toString(),
-                                                task.getResult().get("product title").toString(),
-                                                (long) task.getResult().get("free coupens"),
-                                                task.getResult().get("product price").toString(),
-                                                task.getResult().get("cutted price").toString(),
-                                                1,
-                                                0,
-                                                0,
-                                                (boolean) task.getResult().get("in stock")));
-
-                                        if (cartList.size() == 1) {
-                                            cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
-                                        }
-
-                                        if (cartList.size() == 0) {
-                                            cartItemModelList.clear();
-                                        }
-
-                                        CartFragment.cartAdapter.notifyDataSetChanged();
-                                    } else {
-                                        Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                        }
-                    }
-                    if (cartList.size() != 0) {
-                        bedgeCount.setVisibility(View.VISIBLE);
-                    } else {
-                        bedgeCount.setVisibility(View.INVISIBLE);
-                    }
-                    if (DbQueries.cartList.size() > 99) {
-                        bedgeCount.setText("99");
-                    } else {
-                        bedgeCount.setText(String.valueOf(DbQueries.cartList.size()));
-                    }
-                } else {
-                    Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                dialog.dismiss();
-            }
-        });
-    }
-
-    public static void removeFromCart(final int index, final Context context, final TextView cartTotalAmount) {
-        final String removedProductId = cartList.get(index);
-        cartList.remove(index);
-
-        Map<String, Object> updateCartList = new HashMap<>();
-
-        for (int x = 0; x < cartList.size(); x++) {
-            updateCartList.put("product id " + x, cartList.get(x));
-        }
-        updateCartList.put("list size", (long) cartList.size());
-
-        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
-                .set(updateCartList).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    if (cartItemModelList.size() != 0) {
-                        cartItemModelList.remove(index);
-                    }
-                    if (cartList.size() == 0) {
-                        LinearLayout parent= (LinearLayout) cartTotalAmount.getParent().getParent();
-                        parent.setVisibility(View.INVISIBLE);
-                        cartItemModelList.clear();
-                    }
-                    Toast.makeText(context, "Removed Successfully!", Toast.LENGTH_SHORT).show();
-                    CartFragment.cartAdapter.notifyDataSetChanged();
-                } else {
-                    cartList.add(index, removedProductId);
-                    Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                ProductDetailsActivity.runningCartQuery = false;
-            }
-        });
-    }
+//    public static void removeFromCart(final int index, final Context context, final TextView cartTotalAmount) {
+//        final String removedProductId = cartList.get(index);
+//        cartList.remove(index);
+//
+//        Map<String, Object> updateCartList = new HashMap<>();
+//
+//        for (int x = 0; x < cartList.size(); x++) {
+//            updateCartList.put("product id " + x, cartList.get(x));
+//        }
+//        updateCartList.put("list size", (long) cartList.size());
+//
+//        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
+//                .set(updateCartList).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                if (task.isSuccessful()) {
+//                    if (cartItemModelList.size() != 0) {
+//                        cartItemModelList.remove(index);
+//                        CartFragment.cartAdapter.notifyDataSetChanged();
+//                    }
+//                    if (cartList.size() == 0) {
+//                        LinearLayout parent= (LinearLayout) cartTotalAmount.getParent().getParent();
+//                        parent.setVisibility(View.INVISIBLE);
+//                        cartItemModelList.clear();
+//                    }
+//                    Toast.makeText(context, "Removed Successfully!", Toast.LENGTH_SHORT).show();
+//
+//                } else {
+//                    cartList.add(index, removedProductId);
+//                    Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+//                }
+//                ProductDetailsActivity.runningCartQuery = false;
+//            }
+//        });
+//    }
 
     public static void loadAddresses(final Dialog loadingDialog, final Context context) {
 
@@ -432,8 +443,8 @@ public class DbQueries {
         loadedCategoryNames.clear();
         wishList.clear();
         wishListModelList.clear();
-        cartList.clear();
-        cartItemModelList.clear();
+//        cartList.clear();
+//        cartItemModelList.clear();
     }
 }
 

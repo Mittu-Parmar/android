@@ -158,19 +158,19 @@ public class MainActivity extends AppCompatActivity {
         bedgeIcon.setImageResource(R.drawable.cart_icon);
         bedgeCount = cartItem.getActionView().findViewById(R.id.bedge_count);
 
-        if (currentUser != null) {
-            if (DbQueries.cartList.size() == 0) {
-                DbQueries.loadCartList(MainActivity.this, new Dialog(MainActivity.this), false, bedgeCount);
-            } else {
-                bedgeCount.setVisibility(View.VISIBLE);
-                if (DbQueries.cartList.size() > 99)
-                {
-                    bedgeCount.setText("99");
-                }else {
-                    bedgeCount.setText(String.valueOf(DbQueries.cartList.size()));
-                }
-            }
-        }
+//        if (currentUser != null) {
+//            if (DbQueries.cartList.size() == 0) {
+////                DbQueries.loadCartList(MainActivity.this, new Dialog(MainActivity.this), false, bedgeCount);
+//            } else {
+//                bedgeCount.setVisibility(View.VISIBLE);
+//                if (DbQueries.cartList.size() > 99)
+//                {
+//                    bedgeCount.setText("99");
+//                }else {
+//                    bedgeCount.setText(String.valueOf(DbQueries.cartList.size()));
+//                }
+//            }
+//        }
 
         cartItem.getActionView().setOnClickListener(new View.OnClickListener() {
             @Override

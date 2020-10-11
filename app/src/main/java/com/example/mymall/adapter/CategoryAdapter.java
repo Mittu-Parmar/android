@@ -44,7 +44,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         holder.setCategoryIcon(icon);
         holder.setCategory(name,position);
 
-        if (lastPosition > position){
+        if (lastPosition < position){
             Animation animation= AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.fragment_fade_enter);
             holder.itemView.setAnimation(animation);
             lastPosition=position;

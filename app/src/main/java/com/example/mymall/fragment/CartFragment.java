@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.example.mymall.R;
 import com.example.mymall.activity.AddAddressActivity;
+import com.example.mymall.activity.AddressesActivity;
 import com.example.mymall.activity.DeliveryActivity;
 import com.example.mymall.activity.MainActivity;
 import com.example.mymall.adapter.CartAdapter;
@@ -61,14 +62,10 @@ public class CartFragment extends Fragment {
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         cartItemsRecyclerView.setLayoutManager(layoutManager);
 
-        if (DbQueries.cartItemModelList.size() == 0) {
+        if (DbQueries.cartItemModelList.size()==0){
             DbQueries.cartList.clear();
-            DbQueries.loadCartList(getContext(), loadingDialog, true, bedgeCount);
-        } else {
-            if (DbQueries.cartItemModelList.get(DbQueries.cartItemModelList.size()-1).getType()== CartItemModel.TOTAL_AMOUNT){
-                LinearLayout parent= (LinearLayout) totalAmount.getParent().getParent();
-                parent.setVisibility(View.VISIBLE);
-            }
+            DbQueries.loadCartList(getContext(),loadingDialog,true);
+        }else {
             loadingDialog.dismiss();
         }
 
@@ -76,22 +73,11 @@ public class CartFragment extends Fragment {
         cartItemsRecyclerView.setAdapter(cartAdapter);
         cartAdapter.notifyDataSetChanged();
 
-
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                DeliveryActivity.cartItemModelList=new ArrayList<>();
-                for (int x = 0; x < DeliveryActivity.cartItemModelList.size() ; x++) {
-                    CartItemModel cartItemModel =DbQueries.cartItemModelList.get(x);
-                    if (cartItemModel.isInStock()){
-                        DeliveryActivity.cartItemModelList.add(cartItemModel);
-                    }
-                }
-                DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
-
-                loadingDialog.show();
-                DbQueries.loadAddresses(loadingDialog, getContext());
+                Intent deliveryIntent =new Intent(getContext(), AddressesActivity.class);
+                startActivity(deliveryIntent);
             }
         });
         return view;

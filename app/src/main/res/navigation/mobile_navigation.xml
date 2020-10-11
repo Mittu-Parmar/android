@@ -17,9 +17,9 @@
     </fragment>
     <fragment
         android:id="@+id/nav_home_second"
-        android:label="@string/home_second">
-<!--        android:name="com.example.mymall.HomeSecondFragment"-->
-<!--        tools:layout="@layout/fragment_home_second" >-->
+        android:label="@string/home_second"
+        android:name="com.example.mymall.HomeSecondFragment"
+        tools:layout="@layout/fragment_home_second" >
         <action
             android:id="@+id/action_HomeSecondFragment_to_HomeFragment"
             app:destination="@id/nav_home" />

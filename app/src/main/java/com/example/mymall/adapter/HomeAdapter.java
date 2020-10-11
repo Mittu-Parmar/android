@@ -104,7 +104,7 @@ public class HomeAdapter extends RecyclerView.Adapter {
             default:
                 return;
         }
-        if (lastPosition > position){
+        if (lastPosition < position){
             Animation animation= AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.fragment_fade_enter);
             holder.itemView.setAnimation(animation);
             lastPosition=position;
