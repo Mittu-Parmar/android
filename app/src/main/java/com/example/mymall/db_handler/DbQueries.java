@@ -217,7 +217,7 @@ public class DbQueries {
         });
     }
 
-    public static void loadCartList(final Context context, final Dialog dialog, final boolean loadProductData, final TextView bedgeCount) {
+    public static void loadCartList(final Context context, final Dialog dialog, final boolean loadProductData, final TextView bedgeCount,final  TextView cartTotalAmount) {
 
         cartList.clear();
         firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
@@ -261,6 +261,8 @@ public class DbQueries {
 
                                         if (cartList.size() == 1) {
                                             cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
+                                            LinearLayout parent= (LinearLayout) cartTotalAmount.getParent().getParent();
+                                            parent.setVisibility(View.VISIBLE);
                                         }
                                         if (cartList.size() == 0) {
                                             cartItemModelList.clear();
@@ -324,7 +326,7 @@ public class DbQueries {
         });
     }
 
-    public static void removeFromCart(final int index, final Context context) {
+    public static void removeFromCart(final int index, final Context context, final TextView cartTotalAmount) {
         final String removedProductId = cartList.get(index);
         cartList.remove(index);
         Map<String, Object> updateCartList = new HashMap<>();
@@ -344,6 +346,8 @@ public class DbQueries {
                         CartFragment.cartAdapter.notifyDataSetChanged();
                     }
                     if (cartList.size() == 0) {
+                        LinearLayout parent= (LinearLayout) cartTotalAmount.getParent().getParent();
+                        parent.setVisibility(View.GONE);
                         cartItemModelList.clear();
                     }
                     Toast.makeText(context, "Removed Successfully!", Toast.LENGTH_SHORT).show();

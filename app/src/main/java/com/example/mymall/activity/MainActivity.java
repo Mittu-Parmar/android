@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (currentUser != null) {
             if (DbQueries.cartList.size() == 0) {
-                DbQueries.loadCartList(MainActivity.this, new Dialog(MainActivity.this), false, bedgeCount);
+                DbQueries.loadCartList(MainActivity.this, new Dialog(MainActivity.this), false, bedgeCount,new TextView(MainActivity.this));
             }else {
                     bedgeCount.setVisibility(View.VISIBLE);
                 if (DbQueries.cartList.size() < 99) {

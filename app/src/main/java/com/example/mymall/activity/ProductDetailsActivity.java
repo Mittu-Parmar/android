@@ -249,7 +249,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             DbQueries.loadRatingList(ProductDetailsActivity.this);
                         }
                         if (DbQueries.cartList.size() == 0) {
-                            DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false,bedgeCount);
+                            DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false,bedgeCount,new TextView(ProductDetailsActivity.this));
                         }
                         if (DbQueries.wishList.size() == 0) {
                             DbQueries.loadWishList(ProductDetailsActivity.this, loadingDialog, false);
@@ -304,7 +304,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                     if (task.isSuccessful()) {
 
                                                         if (DbQueries.cartItemModelList.size() != 0) {
-                                                            DbQueries.cartItemModelList.add(new CartItemModel(
+                                                            DbQueries.cartItemModelList.add(0,new CartItemModel(
                                                                     CartItemModel.CART_ITEM,
                                                                     productId,
                                                                     documentSnapshot.get("product image 1").toString(),
@@ -387,7 +387,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                     (long) documentSnapshot.get("total rating"),
                                                     documentSnapshot.get("product price").toString(),
                                                     documentSnapshot.get("cutted price").toString(),
-                                                    (boolean) documentSnapshot.get("in stock")));
+                                                    (boolean) documentSnapshot.get("in stockF")));
                                         }
 
                                         ALREADY_ADDED_TO_WISHLIST = true;
@@ -541,11 +541,34 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                loadingDialog.show();
                 if (currentUser == null) {
                     signInOutDialog.show();
                 } else {
-                    Intent deliveryIntent = new Intent(ProductDetailsActivity.this, DeliveryActivity.class);
-                    startActivity(deliveryIntent);
+
+//                    DeliveryActivity.cartItemModelList.clear();
+                    DeliveryActivity.cartItemModelList =new ArrayList<>();
+                    DeliveryActivity.cartItemModelList.add(new CartItemModel(
+                            CartItemModel.CART_ITEM,
+                            productId,
+                            documentSnapshot.get("product image 1").toString(),
+                            documentSnapshot.get("product title").toString(),
+                            (long) documentSnapshot.get("free coupens"),
+                            documentSnapshot.get("product price").toString(),
+                            documentSnapshot.get("cutted price").toString(),
+                            1,
+                            0,
+                            0,
+                            (boolean) documentSnapshot.get("cod")));
+                    DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
+
+                    if (DbQueries.addressModelList.size()==0) {
+                        DbQueries.loadAddresses(loadingDialog, ProductDetailsActivity.this);
+                    }else {
+                        loadingDialog.dismiss();
+                        Intent deliveryIntent = new Intent(ProductDetailsActivity.this, DeliveryActivity.class);
+                        startActivity(deliveryIntent);
+                    }
                 }
             }
         });
@@ -738,7 +761,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         if (currentUser != null) {
             if (DbQueries.cartList.size() == 0) {
-                DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false, bedgeCount);
+                DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false, bedgeCount,new TextView(ProductDetailsActivity.this));
             }else {
                 bedgeCount.setVisibility(View.VISIBLE);
                 if (DbQueries.cartList.size() < 99) {

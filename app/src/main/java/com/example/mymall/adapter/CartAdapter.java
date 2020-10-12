@@ -94,7 +94,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                 int savedAmount = 0;
 
                 for (int x = 0; x < cartItemModelList.size(); x++) {
-                    if (cartItemModelList.get(x).getType() == CartItemModel.CART_ITEM) {
+                    if (cartItemModelList.get(x).getType() == CartItemModel.CART_ITEM && cartItemModelList.get(x).isInStock()) {
                         totalItems++;
 
                         totalItemsPrice = totalItemsPrice + Integer.parseInt(cartItemModelList.get(x).getProductPrice());
@@ -232,14 +232,11 @@ public class CartAdapter extends RecyclerView.Adapter {
                 public void onClick(View v) {
                     if (!ProductDetailsActivity.runningCartQuery) {
                         ProductDetailsActivity.runningCartQuery = true;
-                        DbQueries.removeFromCart(position, itemView.getContext());
+                        DbQueries.removeFromCart(position, itemView.getContext(),cartTotalAmount);
                         activity.invalidateOptionsMenu();
                     }
                 }
             });
-
-
-            //this.coupenApplied.setText(coupenApplied);
         }
     }
 
@@ -274,6 +271,13 @@ public class CartAdapter extends RecyclerView.Adapter {
             this.savedAmount.setText("You saved Rs." + savedAmountText + "/- on this order.");
 
 
+            LinearLayout parent= (LinearLayout) cartTotalAmount.getParent().getParent();
+            if (totalItemPriceText==0){
+                DbQueries.cartItemModelList.remove(DbQueries.cartItemModelList.size()-1);
+                parent.setVisibility(View.GONE);
+            }else {
+                parent.setVisibility(View.VISIBLE);
+            }
         }
     }
 }
