@@ -83,7 +83,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                 long offerceApplied = cartItemModelList.get(position).getOfferceApplied();
                 boolean inStock = cartItemModelList.get(position).isInStock();
 
-                ((CartItemViewHolder) holder).setCartItemDetails(productId,resource,title,freeCoupens,productPrice,cuttedPrice,offerceApplied,position,inStock);
+                ((CartItemViewHolder) holder).setCartItemDetails(productId, resource, title, freeCoupens, productPrice, cuttedPrice, offerceApplied, position, inStock);
                 break;
             case CartItemModel.TOTAL_AMOUNT:
 
@@ -94,19 +94,20 @@ public class CartAdapter extends RecyclerView.Adapter {
                 int savedAmount = 0;
 
                 for (int x = 0; x < cartItemModelList.size(); x++) {
-                    if (cartItemModelList.get(x).getType() == CartItemModel.CART_ITEM && cartItemModelList.get(x).isInStock()) {
+                    if (cartItemModelList.get(x).getType() == CartItemModel.CART_ITEM) {
                         totalItems++;
+
                         totalItemsPrice = totalItemsPrice + Integer.parseInt(cartItemModelList.get(x).getProductPrice());
                     }
                 }
-                if (totalItemsPrice > 500) {
-                    deliveryPrice = "FREE";
-                    totalAmount = totalItemsPrice;
-                } else {
-                    deliveryPrice = "60";
-                    totalAmount = totalItemsPrice + 60;
-                }
 
+                if (totalItemsPrice > 500) {
+                    deliveryPrice="FREE";
+                    totalAmount=totalItemsPrice;
+                }else {
+                    deliveryPrice="60";
+                    totalAmount=totalItemsPrice+60;
+                }
 
                 ((CartTotalAmountViewHolder) holder).setDetails(totalItems, totalItemsPrice, deliveryPrice, totalAmount, savedAmount);
                 break;
@@ -231,7 +232,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                 public void onClick(View v) {
                     if (!ProductDetailsActivity.runningCartQuery) {
                         ProductDetailsActivity.runningCartQuery = true;
-                        DbQueries.removeFromCart(position,itemView.getContext());
+                        DbQueries.removeFromCart(position, itemView.getContext());
                         activity.invalidateOptionsMenu();
                     }
                 }
@@ -269,16 +270,10 @@ public class CartAdapter extends RecyclerView.Adapter {
                 this.deleveryPrice.setText("Rs." + deleveryPriceText + "/-");
             }
             this.totalAmount.setText("Rs." + totalAmountText + "/-");
+            cartTotalAmount.setText("Rs." + totalAmountText + "/-");
             this.savedAmount.setText("You saved Rs." + savedAmountText + "/- on this order.");
 
 
-            LinearLayout parent = (LinearLayout) cartTotalAmount.getParent().getParent();
-            if (totalItemPriceText == 0) {
-//                DbQueries.cartItemModelList.remove(DbQueries.cartItemModelList.size()-1);
-                parent.setVisibility(View.GONE);
-            } else {
-                parent.setVisibility(View.VISIBLE);
-            }
         }
     }
 }

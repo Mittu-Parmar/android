@@ -30,8 +30,6 @@ import com.example.mymall.model.CartItemModel;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.mymall.activity.MainActivity.bedgeCount;
-
 public class CartFragment extends Fragment {
 
     RecyclerView cartItemsRecyclerView;
@@ -64,7 +62,7 @@ public class CartFragment extends Fragment {
 
         if (DbQueries.cartItemModelList.size()==0){
             DbQueries.cartList.clear();
-            DbQueries.loadCartList(getContext(),loadingDialog,true);
+            DbQueries.loadCartList(getContext(),loadingDialog,true,new TextView(getContext()));
         }else {
             loadingDialog.dismiss();
         }

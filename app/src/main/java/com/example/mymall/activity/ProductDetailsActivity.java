@@ -116,17 +116,17 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private Button buyNowButton;
     private LinearLayout addToCartButton;
-    public static MenuItem cartItem;
 
     private LinearLayout coupenRedeemLayout;
     Button coupenRedeemButton;
     FirebaseFirestore firebaseFirestore;
     private static FirebaseUser currentUser;
+    private TextView bedgeCount;
     private DocumentSnapshot documentSnapshot;
 
-    private TextView bedgeCount;
-
     public static String productId;
+
+    public static MenuItem cartItem;
 
     private List<ProductSpecificationModel> productSpecificationModelList = new ArrayList<>();
 
@@ -249,7 +249,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             DbQueries.loadRatingList(ProductDetailsActivity.this);
                         }
                         if (DbQueries.cartList.size() == 0) {
-                            DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false);
+                            DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false,bedgeCount);
                         }
                         if (DbQueries.wishList.size() == 0) {
                             DbQueries.loadWishList(ProductDetailsActivity.this, loadingDialog, false);
@@ -321,6 +321,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                         ALREADY_ADDED_TO_CART = true;
                                                         DbQueries.cartList.add(productId);
                                                         Toast.makeText(ProductDetailsActivity.this, "Added to Cart successfully", Toast.LENGTH_SHORT).show();
+                                                        invalidateOptionsMenu();
                                                         runningCartQuery = false;
                                                     } else {
                                                         runningCartQuery = false;
@@ -691,10 +692,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 DbQueries.loadRatingList(ProductDetailsActivity.this);
             }
 
-            if (DbQueries.cartList.size() == 0) {
-                DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false);
-            }
-
             if (DbQueries.wishList.isEmpty()) {
                 DbQueries.loadWishList(ProductDetailsActivity.this, loadingDialog, false);
             } else {
@@ -732,24 +729,25 @@ public class ProductDetailsActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.search_and_cart_icon, menu);
 
+
         cartItem = menu.findItem(R.id.menu_cart);
         cartItem.setActionView(R.layout.badge_layout);
         ImageView bedgeIcon = cartItem.getActionView().findViewById(R.id.bedge_icon);
         bedgeIcon.setImageResource(R.drawable.cart_icon);
         bedgeCount = cartItem.getActionView().findViewById(R.id.bedge_count);
 
-//        if (currentUser != null) {
-//            if (DbQueries.cartList.size() == 0) {
-//                DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false, bedgeCount);
-//            } else {
-//                bedgeCount.setVisibility(View.VISIBLE);
-//                if (DbQueries.cartList.size() > 99) {
-//                    bedgeCount.setText("99");
-//                } else {
-//                    bedgeCount.setText(String.valueOf(DbQueries.cartList.size()));
-//                }
-//            }
-//        }
+        if (currentUser != null) {
+            if (DbQueries.cartList.size() == 0) {
+                DbQueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false, bedgeCount);
+            }else {
+                bedgeCount.setVisibility(View.VISIBLE);
+                if (DbQueries.cartList.size() < 99) {
+                    bedgeCount.setText(String.valueOf(DbQueries.cartList.size()));
+                } else {
+                    bedgeCount.setText("99");
+                }
+            }
+        }
 
         cartItem.getActionView().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -762,8 +760,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 }
             }
         });
-
-
         return true;
     }
 
