@@ -387,7 +387,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                     (long) documentSnapshot.get("total rating"),
                                                     documentSnapshot.get("product price").toString(),
                                                     documentSnapshot.get("cutted price").toString(),
-                                                    (boolean) documentSnapshot.get("cod")));
+                                                    (boolean) documentSnapshot.get("in stock")));
                                         }
 
                                         ALREADY_ADDED_TO_WISHLIST = true;

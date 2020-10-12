@@ -211,7 +211,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                 }
             } else {
                 this.productPrice.setText("Out of Stock");
-                this.productPrice.setTextColor(itemView.getResources().getColor(R.color.colorPrimary));
+                this.productPrice.setTextColor(itemView.getContext().getResources().getColor(R.color.colorPrimary));
                 this.cuttedPrice.setText("");
                 coupenRedemptionLayout.setVisibility(View.GONE);
 
