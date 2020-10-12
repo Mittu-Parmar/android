@@ -246,7 +246,7 @@ public class DbQueries {
                                         if (cartList.size() >= 2) {
                                             index = cartList.size() - 2;
                                         }
-                                        cartItemModelList.add(index,new CartItemModel(
+                                        cartItemModelList.add(index, new CartItemModel(
                                                 CartItemModel.CART_ITEM,
                                                 productId,
                                                 task.getResult().get("product image 1").toString(),
@@ -262,7 +262,7 @@ public class DbQueries {
                                         if (cartList.size() == 1) {
                                             cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
                                         }
-                                        if (cartList.size()==0){
+                                        if (cartList.size() == 0) {
                                             cartItemModelList.clear();
                                         }
                                         CartFragment.cartAdapter.notifyDataSetChanged();
@@ -343,7 +343,7 @@ public class DbQueries {
                         cartItemModelList.remove(index);
                         CartFragment.cartAdapter.notifyDataSetChanged();
                     }
-                    if (cartList.size()==0){
+                    if (cartList.size() == 0) {
                         cartItemModelList.clear();
                     }
                     Toast.makeText(context, "Removed Successfully!", Toast.LENGTH_SHORT).show();

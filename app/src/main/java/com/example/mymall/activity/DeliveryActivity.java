@@ -26,8 +26,6 @@ import static com.example.mymall.model.AddressesModel.DELIVERY_ACTIVITY;
 
 public class DeliveryActivity extends AppCompatActivity {
 
-
-    public static List<CartItemModel> cartItemModelList;
     private RecyclerView deliveryRecyclerView;
     private Button addAddressButton;
     private TextView totalAmount;
@@ -58,7 +56,7 @@ public class DeliveryActivity extends AppCompatActivity {
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         deliveryRecyclerView.setLayoutManager(layoutManager);
 
-        CartAdapter cartAdapter=new CartAdapter(cartItemModelList,totalAmount,DeliveryActivity.this,false);
+        CartAdapter cartAdapter=new CartAdapter(DbQueries.cartItemModelList,totalAmount,DeliveryActivity.this,false);
         deliveryRecyclerView.setAdapter(cartAdapter);
         cartAdapter.notifyDataSetChanged();
 
