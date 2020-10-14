@@ -55,22 +55,12 @@ public class CartFragment extends Fragment {
 
         cartItemsRecyclerView = view.findViewById(R.id.cart_items_recycler_view);
         continueButton = view.findViewById(R.id.cart_continue_button);
-        totalAmount = view.findViewById(R.id.total_cart_amount);
+        totalAmount = view.findViewById(R.id.total_amount_cart);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         cartItemsRecyclerView.setLayoutManager(layoutManager);
 
-        if (DbQueries.cartItemModelList.size()==0){
-            DbQueries.cartList.clear();
-            DbQueries.loadCartList(getContext(),loadingDialog,true,new TextView(getContext()),totalAmount);
-        }else {
-            if (DbQueries.cartItemModelList.get(DbQueries.cartItemModelList.size()-1).getType() == CartItemModel.TOTAL_AMOUNT){
-                LinearLayout parent= (LinearLayout) totalAmount.getParent().getParent();
-                parent.setVisibility(View.VISIBLE);
-            }
-            loadingDialog.dismiss();
-        }
 
         cartAdapter = new CartAdapter(DbQueries.cartItemModelList, totalAmount, getActivity(), true);
         cartItemsRecyclerView.setAdapter(cartAdapter);
@@ -79,6 +69,8 @@ public class CartFragment extends Fragment {
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                DeliveryActivity.fromCart=true;
 
                 DeliveryActivity.cartItemModelList=new ArrayList<>();
                 for (int x = 0; x < DbQueries.cartItemModelList.size(); x++) {
@@ -102,4 +94,19 @@ public class CartFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (DbQueries.cartItemModelList.size()==0){
+            DbQueries.cartList.clear();
+            DbQueries.loadCartList(getContext(),loadingDialog,true,new TextView(getContext()),totalAmount);
+        }else {
+            if (DbQueries.cartItemModelList.get(DbQueries.cartItemModelList.size()-1).getType() == CartItemModel.TOTAL_AMOUNT){
+                LinearLayout parent= (LinearLayout) totalAmount.getParent().getParent();
+                parent.setVisibility(View.VISIBLE);
+            }
+            loadingDialog.dismiss();
+        }
+    }
 }

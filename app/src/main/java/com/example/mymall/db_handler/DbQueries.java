@@ -128,7 +128,8 @@ public class DbQueries {
                                                 (long) documentSnapshot.get("total rating " + i),
                                                 documentSnapshot.get("product price " + i).toString(),
                                                 documentSnapshot.get("cutted price " + i).toString(),
-                                                (boolean) documentSnapshot.get("cod " + i)));
+                                                (boolean) documentSnapshot.get("cod " + i),
+                                                (boolean) documentSnapshot.get("in stock "+i)));
                                     }
                                     lists.get(index).add(new HomeModel(HomeModel.HORIZONTAL_PRODUCT_VIEW, documentSnapshot.get("layout title").toString(), productItemModelList, viewAllprodectModelList));
 
@@ -199,7 +200,8 @@ public class DbQueries {
                                                 (long) task.getResult().get("total ratings"),
                                                 task.getResult().get("product price").toString(),
                                                 task.getResult().get("cutted price").toString(),
-                                                (boolean) task.getResult().get("cod")));
+                                                (boolean) task.getResult().get("cod"),
+                                                (boolean) task.getResult().get("in stock")));
 
                                         WishlistFragment.wishlistAdapter.notifyDataSetChanged();
                                     } else {
@@ -432,6 +434,9 @@ public class DbQueries {
         wishListModelList.clear();
         cartList.clear();
         cartItemModelList.clear();
+        myRatedIds.clear();
+        myRating.clear();
+        addressModelList.clear();
     }
 }
 

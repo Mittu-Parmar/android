@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -54,6 +55,8 @@ import java.util.Map;
 import static com.example.mymall.activity.RegisterActivity.setSignUpFregment;
 
 public class ProductDetailsActivity extends AppCompatActivity {
+
+    public static Activity productDetailsActivity;
 
     public static boolean runningWishlistQuery = false;
     public static boolean runningRaringQuery = false;
@@ -387,7 +390,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                     (long) documentSnapshot.get("total rating"),
                                                     documentSnapshot.get("product price").toString(),
                                                     documentSnapshot.get("cutted price").toString(),
-                                                    (boolean) documentSnapshot.get("in stockF")));
+                                                    (boolean) documentSnapshot.get("cod"),
+                                                    (boolean) documentSnapshot.get("in stock")));
                                         }
 
                                         ALREADY_ADDED_TO_WISHLIST = true;
@@ -541,12 +545,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                loadingDialog.show();
                 if (currentUser == null) {
                     signInOutDialog.show();
                 } else {
-
-//                    DeliveryActivity.cartItemModelList.clear();
+                    DeliveryActivity.fromCart=false;
+                    loadingDialog.show();
+                    productDetailsActivity=ProductDetailsActivity.this;
                     DeliveryActivity.cartItemModelList =new ArrayList<>();
                     DeliveryActivity.cartItemModelList.add(new CartItemModel(
                             CartItemModel.CART_ITEM,
@@ -559,7 +563,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             1,
                             0,
                             0,
-                            (boolean) documentSnapshot.get("cod")));
+                            (boolean) documentSnapshot.get("in stock")));
                     DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
 
                     if (DbQueries.addressModelList.size()==0) {
@@ -791,6 +795,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
+            productDetailsActivity=null;
             finish();
             return true;
         } else if (id == R.id.menu_search) {
@@ -810,5 +815,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        productDetailsActivity=null;
+        super.onBackPressed();
     }
 }

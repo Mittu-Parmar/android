@@ -10,6 +10,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,9 +47,9 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull WishlistAdapter.ViewHolder holder, int position) {
-        holder.setDetails(position,wishListModelList.get(position).getProductId(),wishListModelList.get(position).getImage(),wishListModelList.get(position).getProductTitle(),wishListModelList.get(position).getFreeCoupens(),wishListModelList.get(position).getRating(),wishListModelList.get(position).getTotalRatings(),wishListModelList.get(position).getProductPrice(),wishListModelList.get(position).getCuttedPrice(),wishListModelList.get(position).isCod());
+        holder.setDetails(position,wishListModelList.get(position).getProductId(),wishListModelList.get(position).getImage(),wishListModelList.get(position).getProductTitle(),wishListModelList.get(position).getFreeCoupens(),wishListModelList.get(position).getRating(),wishListModelList.get(position).getTotalRatings(),wishListModelList.get(position).getProductPrice(),wishListModelList.get(position).getCuttedPrice(),wishListModelList.get(position).isCod(),wishListModelList.get(position).isInStock());
 
-        if (lastPosition > position){
+        if (lastPosition < position){
             Animation animation= AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.fragment_fade_enter);
             holder.itemView.setAnimation(animation);
             lastPosition=position;
@@ -87,12 +88,11 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
             this.deleteImageButton = itemView.findViewById(R.id.wishlist_item_delete_btn);
 
         }
-        private void setDetails(final int index, final String productId, String image, String productTitle, long freeCoupens, String rating, long totalRatings, String productPrice, String cuttedPrice, boolean paymentMethod)
+        private void setDetails(final int index, final String productId, String image, String productTitle, long freeCoupens, String rating, long totalRatings, String productPrice, String cuttedPrice, boolean paymentMethod,boolean inStock)
         {
             Glide.with(itemView.getContext()).load(image).apply(new RequestOptions().placeholder(R.drawable.place_holder_icon)).into(this.image);
-
             this.productTitle.setText(productTitle);
-            if (freeCoupens!=0) {
+            if (freeCoupens!=0 && inStock) {
                 this.freeCoupens.setVisibility(View.VISIBLE);
                 if (freeCoupens==1) {
                     this.freeCoupens.setText("Free "+freeCoupens+" Coupen");
@@ -102,17 +102,34 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
             }else {
                 this.freeCoupens.setVisibility(View.INVISIBLE);
             }
-            this.rating.setText(rating);
-            this.totalRatings.setText("Total ratings ("+totalRatings+")");
-            this.productPrice.setText(productPrice);
-            this.cuttedPrice.setText(cuttedPrice);
-            if (paymentMethod){
-                this.paymentMethod.setText("Available");
-            }
-            else {
-                this.paymentMethod.setText("Not available");
-            }
+            LinearLayout ratingLayout = (LinearLayout) this.rating.getParent();
+            if (inStock) {
 
+                ratingLayout.setVisibility(View.VISIBLE);
+                this.rating.setVisibility(View.VISIBLE);
+                this.totalRatings.setVisibility(View.VISIBLE);
+                this.productPrice.setTextColor(Color.parseColor("#000000"));
+                this.cuttedPrice.setVisibility(View.VISIBLE);
+
+                this.rating.setText(rating);
+                this.totalRatings.setText("Total ratings ("+totalRatings+")");
+                this.productPrice.setText(productPrice);
+                this.cuttedPrice.setText(cuttedPrice);
+                if (paymentMethod){
+                    this.paymentMethod.setVisibility(View.VISIBLE);
+                }
+                else {
+                    this.paymentMethod.setVisibility(View.INVISIBLE);
+                }
+            }else {
+                ratingLayout.setVisibility(View.INVISIBLE);
+                this.rating.setVisibility(View.INVISIBLE);
+                this.totalRatings.setVisibility(View.INVISIBLE);
+                this.productPrice.setText("Out of stock");
+                this.productPrice.setTextColor(itemView.getContext().getResources().getColor(R.color.colorPrimary));
+                this.cuttedPrice.setVisibility(View.INVISIBLE);
+                this.paymentMethod.setVisibility(View.INVISIBLE);
+            }
 
             if (!isFromViewAll)
             {

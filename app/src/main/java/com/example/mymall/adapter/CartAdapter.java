@@ -267,7 +267,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                 this.deleveryPrice.setText("Rs." + deleveryPriceText + "/-");
             }
             this.totalAmount.setText("Rs." + totalAmountText + "/-");
-            cartTotalAmount.setText("Rs." + totalAmountText + "/-");
+            cartTotalAmount.setText(String.valueOf(totalAmountText));
             this.savedAmount.setText("You saved Rs." + savedAmountText + "/- on this order.");
 
 

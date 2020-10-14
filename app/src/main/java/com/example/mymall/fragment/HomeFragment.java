@@ -25,6 +25,7 @@ import com.example.mymall.R;
 import com.example.mymall.activity.MainActivity;
 import com.example.mymall.adapter.CategoryAdapter;
 import com.example.mymall.adapter.HomeAdapter;
+import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.CategoryModel;
 import com.example.mymall.model.HomeModel;
 import com.example.mymall.model.ProductItemModel;
@@ -189,9 +190,12 @@ public class HomeFragment extends Fragment {
     private void reloadPage(){
         connectivityManager= (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        categoryModelList.clear();
-        lists.clear();
-        loadedCategoryNames.clear();
+//        categoryModelList.clear();
+//        lists.clear();
+//        loadedCategoryNames.clear();
+
+        DbQueries.clearData();
+
         networkInfo=connectivityManager.getActiveNetworkInfo();
         if(networkInfo !=null && networkInfo.isConnected() == true){
             MainActivity.showNavigationItems(true);
