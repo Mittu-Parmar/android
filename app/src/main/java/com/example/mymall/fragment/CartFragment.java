@@ -98,12 +98,13 @@ public class CartFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        LinearLayout parent= (LinearLayout) totalAmount.getParent().getParent();
         if (DbQueries.cartItemModelList.size()==0){
+            parent.setVisibility(View.GONE);
             DbQueries.cartList.clear();
             DbQueries.loadCartList(getContext(),loadingDialog,true,new TextView(getContext()),totalAmount);
         }else {
             if (DbQueries.cartItemModelList.get(DbQueries.cartItemModelList.size()-1).getType() == CartItemModel.TOTAL_AMOUNT){
-                LinearLayout parent= (LinearLayout) totalAmount.getParent().getParent();
                 parent.setVisibility(View.VISIBLE);
             }
             loadingDialog.dismiss();

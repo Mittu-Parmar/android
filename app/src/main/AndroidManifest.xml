@@ -4,8 +4,8 @@
     package="com.example.mymall">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -14,7 +14,8 @@
         android:roundIcon="@drawable/my_mall_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.CartFragmentActivity"></activity>
+        <activity android:name=".activity.OTPVarificationActivity"></activity>
+        <activity android:name=".activity.CartFragmentActivity" />
         <activity android:name=".activity.ViewAllActivity" />
         <activity android:name=".activity.AddressesActivity" />
         <activity
@@ -25,9 +26,9 @@
         <activity android:name=".activity.ProductDetailsActivity" />
         <activity android:name=".activity.CategoryActivity" />
         <activity
-            android:screenOrientation="portrait"
             android:name=".activity.MainActivity"
             android:label="@string/title_activity_main"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             tools:ignore="LockedOrientationActivity" />
         <activity

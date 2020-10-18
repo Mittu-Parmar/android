@@ -410,7 +410,8 @@ public class DbQueries {
                                     task.getResult().get("full name " + x).toString(),
                                     task.getResult().get("address " + x).toString(),
                                     task.getResult().get("pincode " + x).toString(),
-                                    (boolean) task.getResult().get("selected " + x)));
+                                    (boolean) task.getResult().get("selected " + x),
+                                    task.getResult().get("mobile no "+x).toString()));
                             if ((boolean) task.getResult().get("selected " + x)) {
                                 selectedAddress = Integer.parseInt(String.valueOf(x - 1));
                             }

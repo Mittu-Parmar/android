@@ -14,6 +14,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.example.mymall.model.AddressesModel.DELIVERY_ACTIVITY;
 
@@ -49,16 +51,21 @@ public class DeliveryActivity extends AppCompatActivity {
     private Button continueButton;
     private TextView totalAmount;
     private TextView fullName;
+    private String name,mobileNo;
     private TextView fullAddress;
     private TextView pincode;
     private Dialog loadingDialog;
     private Dialog paymentMethodDialog;
     private ImageView paytm;
+    private ImageView cod;
     private ConstraintLayout orderConfirmationLayout;
     private ImageView continueShoppingButton;
     private TextView orderId;
+    private String id;
     private boolean success=false;
     public static boolean fromCart;
+
+    public static boolean codOrderConfirm=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +89,8 @@ public class DeliveryActivity extends AppCompatActivity {
         paymentMethodDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.layout_background));
         paymentMethodDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         paytm=paymentMethodDialog.findViewById(R.id.paytm);
+        cod=paymentMethodDialog.findViewById(R.id.cod_button);
+        id =UUID.randomUUID().toString().substring(0,28);
 
 
         addAddressButton=findViewById(R.id.add_address_btn);
@@ -119,48 +128,28 @@ public class DeliveryActivity extends AppCompatActivity {
                 paymentMethodDialog.show();
             }
         });
+
+
+        cod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                paymentMethodDialog.dismiss();
+                paymentMethodDialog.dismiss();
+                Intent OTPIntent=new Intent(DeliveryActivity.this,OTPVarificationActivity.class);
+                OTPIntent.putExtra("mobileNo",mobileNo.substring(0,10));
+                startActivity(OTPIntent);
+            }
+        });
+
+
         paytm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (fromCart){
-                    loadingDialog.show();
-                    long cartListSize=0;
-                    final List <Integer> indexList=new ArrayList<>();
-                    Map<String, Object> updateCartList = new HashMap<>();
-                    for (int x = 0; x < DbQueries.cartList.size(); x++) {
-                        if(!cartItemModelList.get(x).isInStock()) {
-                            updateCartList.put("product id " + cartListSize, cartItemModelList.get(x).getProductId());
-                            cartListSize++;
-                        }else {
-                            indexList.add(x);
-                        }
-                    }
-                    updateCartList.put("list size", cartListSize);
-                    FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
-                            .set(updateCartList).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                for (int x = 0; x < indexList.size() ; x++) {
-                                    DbQueries.cartList.remove(indexList.get(x).intValue());
-                                    DbQueries.cartItemModelList.remove(indexList.get(x).intValue());
-                                    DbQueries.cartItemModelList.remove(DbQueries.cartItemModelList.size()-1);
-                                }
-                            }else {
-                                Toast.makeText(DeliveryActivity.this, ""+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                            loadingDialog.dismiss();
-                        }
-                    });
-                }
+                // TODO: todo payment gateway integration
 
+                showConfirmationLayout();
 
-                success=true;
-                paymentMethodDialog.dismiss();
-//                loadingDialog.show();
-                orderId.setText("Order ID:156981");
-                orderConfirmationLayout.setVisibility(View.VISIBLE);
             }
         });
         continueShoppingButton.setOnClickListener(new View.OnClickListener() {
@@ -187,10 +176,14 @@ public class DeliveryActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (DbQueries.addressModelList.size()>0) {
-            fullName.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getName());
+            name=DbQueries.addressModelList.get(DbQueries.selectedAddress).getName();
+            mobileNo=DbQueries.addressModelList.get(DbQueries.selectedAddress).getMobileNo();
+            fullName.setText(name + " - " +mobileNo);
             fullAddress.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getAddress());
             pincode.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getPinCode());
+
+        if (codOrderConfirm==true){
+            showConfirmationLayout();
         }
     }
 
@@ -211,5 +204,56 @@ public class DeliveryActivity extends AppCompatActivity {
             ProductDetailsActivity.productDetailsActivity.finish();
         }
         super.onBackPressed();
+    }
+
+    private void showConfirmationLayout(){
+        codOrderConfirm=false;
+        if (fromCart){
+            loadingDialog.show();
+            long cartListSize=0;
+            final List <Integer> indexList=new ArrayList<>();
+            Map<String, Object> updateCartList = new HashMap<>();
+            for (int x = 0; x < DbQueries.cartList.size(); x++) {
+                if(!cartItemModelList.get(x).isInStock()) {
+                    updateCartList.put("product id " + cartListSize, cartItemModelList.get(x).getProductId());
+                    cartListSize++;
+                }else {
+                    indexList.add(x);
+                }
+            }
+            updateCartList.put("list size", cartListSize);
+            FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
+                    .set(updateCartList).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        for (int x = 0; x < indexList.size() ; x++) {
+                            DbQueries.cartList.remove(indexList.get(x).intValue());
+                            DbQueries.cartItemModelList.remove(indexList.get(x).intValue());
+                            DbQueries.cartItemModelList.remove(DbQueries.cartItemModelList.size()-1);
+                        }
+                    }else {
+                        Toast.makeText(DeliveryActivity.this, ""+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                    loadingDialog.dismiss();
+                }
+            });
+        }
+
+        success=true;
+
+        continueButton.setEnabled(false);
+        addAddressButton.setEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        paymentMethodDialog.dismiss();
+//                loadingDialog.show();
+
+        orderId.setText("Order ID:"+id);
+        orderConfirmationLayout.setVisibility(View.VISIBLE);
+
+        // TODO: message sending api integration
+        Toast.makeText(this, "Your Order is Confirm, your order id is:"+id, Toast.LENGTH_LONG).show();
+
     }
 }
