@@ -13,11 +13,12 @@ public class CartItemModel {
     private String productPrice;
     private String cuttedPrice;
     private long productQuantity;
+    private long productMaxQuantity;
     private long offerceApplied;
     private long coupenApplied;
     private boolean inStock;
 
-    public CartItemModel(int type, String productId, String productImage, String productTitle, long freeCoupens, String productPrice, String cuttedPrice, long productQuantity, long offerceApplied, long coupenApplied, boolean inStock) {
+    public CartItemModel(int type, String productId, String productImage, String productTitle, long freeCoupens, String productPrice, String cuttedPrice, long productQuantity, long offerceApplied, long coupenApplied, boolean inStock,long productMaxQuantity) {
         this.type = type;
         this.productId=productId;
         this.productImage = productImage;
@@ -29,6 +30,15 @@ public class CartItemModel {
         this.offerceApplied = offerceApplied;
         this.coupenApplied = coupenApplied;
         this.inStock=inStock;
+        this.productMaxQuantity=productMaxQuantity;
+    }
+
+    public long getProductMaxQuantity() {
+        return productMaxQuantity;
+    }
+
+    public void setProductMaxQuantity(long productMaxQuantity) {
+        this.productMaxQuantity = productMaxQuantity;
     }
 
     public int getType() {

@@ -98,6 +98,8 @@ public class CartFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        cartAdapter.notifyDataSetChanged();
+
         LinearLayout parent= (LinearLayout) totalAmount.getParent().getParent();
         if (DbQueries.cartItemModelList.size()==0){
             parent.setVisibility(View.GONE);
