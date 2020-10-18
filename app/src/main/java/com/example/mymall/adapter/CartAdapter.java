@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.mymall.R;
 import com.example.mymall.activity.DeliveryActivity;
+import com.example.mymall.activity.MainActivity;
 import com.example.mymall.activity.ProductDetailsActivity;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.CartItemModel;
@@ -206,12 +207,16 @@ public class CartAdapter extends RecyclerView.Adapter {
                             public void onClick(View v) {
                                 if (!TextUtils.isEmpty(quantityNo.getText())) {
                                     if (Long.parseLong(quantityNo.getText().toString()) <= maxQuantity && Long.parseLong(quantityNo.getText().toString()) != 0) {
-                                        if (DeliveryActivity.fromCart){
+
+                                        if (itemView.getContext() instanceof MainActivity){
                                             DbQueries.cartItemModelList.get(position).setProductQuantity(Integer.parseInt(quantityNo.getText().toString()));
                                         }else {
-                                            DeliveryActivity.cartItemModelList.get(position).setProductQuantity(Integer.parseInt(quantityNo.getText().toString()));
+                                            if (DeliveryActivity.fromCart) {
+                                                DbQueries.cartItemModelList.get(position).setProductQuantity(Integer.parseInt(quantityNo.getText().toString()));
+                                            } else {
+                                                DeliveryActivity.cartItemModelList.get(position).setProductQuantity(Integer.parseInt(quantityNo.getText().toString()));
+                                            }
                                         }
-
                                         productQuantity.setText("Qty." + (quantityNo.getText()));
                                     } else {
                                         Toast.makeText(itemView.getContext(), "Max Quantity " + maxQuantity, Toast.LENGTH_SHORT).show();
