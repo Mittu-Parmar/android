@@ -22,10 +22,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.mymall.R;
+import com.example.mymall.activity.CartFragmentActivity;
 import com.example.mymall.activity.DeliveryActivity;
 import com.example.mymall.activity.MainActivity;
 import com.example.mymall.activity.ProductDetailsActivity;
 import com.example.mymall.db_handler.DbQueries;
+import com.example.mymall.fragment.CartFragment;
 import com.example.mymall.model.CartItemModel;
 
 import java.util.List;
@@ -86,11 +88,11 @@ public class CartAdapter extends RecyclerView.Adapter {
                 String cuttedPrice = cartItemModelList.get(position).getCuttedPrice();
                 long offerceApplied = cartItemModelList.get(position).getOfferceApplied();
                 boolean inStock = cartItemModelList.get(position).isInStock();
-                long productQuantity= cartItemModelList.get(position).getProductQuantity();
-                long maxQuantity= cartItemModelList.get(position).getProductMaxQuantity();
+                long productQuantity = cartItemModelList.get(position).getProductQuantity();
+                long maxQuantity = cartItemModelList.get(position).getProductMaxQuantity();
 
 
-                ((CartItemViewHolder) holder).setCartItemDetails(productId, resource, title, freeCoupens, productPrice, cuttedPrice, offerceApplied, position, inStock,String.valueOf(productQuantity),maxQuantity);
+                ((CartItemViewHolder) holder).setCartItemDetails(productId, resource, title, freeCoupens, productPrice, cuttedPrice, offerceApplied, position, inStock, String.valueOf(productQuantity), maxQuantity);
                 break;
             case CartItemModel.TOTAL_AMOUNT:
 
@@ -208,9 +210,9 @@ public class CartAdapter extends RecyclerView.Adapter {
                                 if (!TextUtils.isEmpty(quantityNo.getText())) {
                                     if (Long.parseLong(quantityNo.getText().toString()) <= maxQuantity && Long.parseLong(quantityNo.getText().toString()) != 0) {
 
-                                        if (itemView.getContext() instanceof MainActivity){
+                                        if (itemView.getContext() instanceof MainActivity || itemView.getContext() instanceof CartFragmentActivity) {
                                             DbQueries.cartItemModelList.get(position).setProductQuantity(Integer.parseInt(quantityNo.getText().toString()));
-                                        }else {
+                                        } else {
                                             if (DeliveryActivity.fromCart) {
                                                 DbQueries.cartItemModelList.get(position).setProductQuantity(Integer.parseInt(quantityNo.getText().toString()));
                                             } else {
