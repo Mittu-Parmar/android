@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private static FirebaseUser currentUser;
     private TextView bedgeCount;
     public static Activity mainActivity;
+    public static NavController navController;
+    public static boolean resetMainActivity=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 R.id.nav_home, R.id.nav_account, R.id.nav_wishlist, R.id.nav_order, R.id.nav_rewards, R.id.nav_account, R.id.nav_cart, R.id.nav_logout)
                 .setDrawerLayout(drawer)
                 .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
@@ -146,6 +148,10 @@ public class MainActivity extends AppCompatActivity {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
+        }
+        if (resetMainActivity){
+            resetMainActivity=false;
+            navController.navigate(R.id.nav_home);
         }
 
         invalidateOptionsMenu();

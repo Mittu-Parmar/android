@@ -209,7 +209,6 @@ public class CartAdapter extends RecyclerView.Adapter {
                             public void onClick(View v) {
                                 if (!TextUtils.isEmpty(quantityNo.getText())) {
                                     if (Long.parseLong(quantityNo.getText().toString()) <= maxQuantity && Long.parseLong(quantityNo.getText().toString()) != 0) {
-
                                         if (itemView.getContext() instanceof MainActivity || itemView.getContext() instanceof CartFragmentActivity) {
                                             DbQueries.cartItemModelList.get(position).setProductQuantity(Integer.parseInt(quantityNo.getText().toString()));
                                         } else {

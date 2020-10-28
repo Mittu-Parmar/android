@@ -1,5 +1,8 @@
 package com.example.mymall.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CartItemModel {
     public static final int CART_ITEM=0;
     public static final int TOTAL_AMOUNT=1;
@@ -17,6 +20,7 @@ public class CartItemModel {
     private long offerceApplied;
     private long coupenApplied;
     private boolean inStock;
+    private List<String> qtyIDs;
 
     public CartItemModel(int type, String productId, String productImage, String productTitle, long freeCoupens, String productPrice, String cuttedPrice, long productQuantity, long offerceApplied, long coupenApplied, boolean inStock,long productMaxQuantity) {
         this.type = type;
@@ -31,6 +35,15 @@ public class CartItemModel {
         this.coupenApplied = coupenApplied;
         this.inStock=inStock;
         this.productMaxQuantity=productMaxQuantity;
+        this.qtyIDs=new ArrayList<>();
+    }
+
+    public List<String> getQtyIDs() {
+        return qtyIDs;
+    }
+
+    public void setQtyIDs(List<String> qtyIDs) {
+        this.qtyIDs = qtyIDs;
     }
 
     public long getProductMaxQuantity() {
