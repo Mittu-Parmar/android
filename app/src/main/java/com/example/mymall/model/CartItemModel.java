@@ -16,13 +16,14 @@ public class CartItemModel {
     private String productPrice;
     private String cuttedPrice;
     private long productQuantity;
-    private long productMaxQuantity;
+    private long MaxQuantity;
+    private long stockQuantity;
     private long offerceApplied;
     private long coupenApplied;
     private boolean inStock;
     private List<String> qtyIDs;
 
-    public CartItemModel(int type, String productId, String productImage, String productTitle, long freeCoupens, String productPrice, String cuttedPrice, long productQuantity, long offerceApplied, long coupenApplied, boolean inStock,long productMaxQuantity) {
+    public CartItemModel(int type, String productId, String productImage, String productTitle, long freeCoupens, String productPrice, String cuttedPrice, long productQuantity, long offerceApplied, long coupenApplied, boolean inStock,long MaxQuantity, long stockQuantity) {
         this.type = type;
         this.productId=productId;
         this.productImage = productImage;
@@ -34,8 +35,17 @@ public class CartItemModel {
         this.offerceApplied = offerceApplied;
         this.coupenApplied = coupenApplied;
         this.inStock=inStock;
-        this.productMaxQuantity=productMaxQuantity;
+        this.MaxQuantity = MaxQuantity;
         this.qtyIDs=new ArrayList<>();
+        this.stockQuantity=stockQuantity;
+    }
+
+    public long getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(long stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 
     public List<String> getQtyIDs() {
@@ -46,12 +56,12 @@ public class CartItemModel {
         this.qtyIDs = qtyIDs;
     }
 
-    public long getProductMaxQuantity() {
-        return productMaxQuantity;
+    public long getMaxQuantity() {
+        return MaxQuantity;
     }
 
-    public void setProductMaxQuantity(long productMaxQuantity) {
-        this.productMaxQuantity = productMaxQuantity;
+    public void setMaxQuantity(long maxQuantity) {
+        this.MaxQuantity = maxQuantity;
     }
 
     public int getType() {

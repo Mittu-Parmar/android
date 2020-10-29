@@ -27,7 +27,6 @@ import com.example.mymall.activity.DeliveryActivity;
 import com.example.mymall.activity.MainActivity;
 import com.example.mymall.activity.ProductDetailsActivity;
 import com.example.mymall.db_handler.DbQueries;
-import com.example.mymall.fragment.CartFragment;
 import com.example.mymall.model.CartItemModel;
 
 import java.util.List;
@@ -89,7 +88,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                 long offerceApplied = cartItemModelList.get(position).getOfferceApplied();
                 boolean inStock = cartItemModelList.get(position).isInStock();
                 long productQuantity = cartItemModelList.get(position).getProductQuantity();
-                long maxQuantity = cartItemModelList.get(position).getProductMaxQuantity();
+                long maxQuantity = cartItemModelList.get(position).getMaxQuantity();
 
 
                 ((CartItemViewHolder) holder).setCartItemDetails(productId, resource, title, freeCoupens, productPrice, cuttedPrice, offerceApplied, position, inStock, String.valueOf(productQuantity), maxQuantity);
