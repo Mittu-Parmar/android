@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,12 +30,11 @@ import com.example.mymall.adapter.ProductDetailsAdapter;
 import com.example.mymall.adapter.ProductImagesAdapter;
 import com.example.mymall.adapter.RewordsAdapter;
 import com.example.mymall.db_handler.DbQueries;
-import com.example.mymall.fragment.ProductSpaeificationFragment;
 import com.example.mymall.fragment.SigninFragment;
 import com.example.mymall.fragment.SignupFragment;
 import com.example.mymall.model.CartItemModel;
 import com.example.mymall.model.ProductSpecificationModel;
-import com.example.mymall.model.RewordsModel;
+import com.example.mymall.model.RewardsModel;
 import com.example.mymall.model.WishListModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -621,15 +619,15 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 layoutManager.setOrientation(RecyclerView.VERTICAL);
                 coupensRecyclerView.setLayoutManager(layoutManager);
 
-                List<RewordsModel> rewordsModelList = new ArrayList<>();
-                rewordsModelList.add(new RewordsModel("SELL", "Till 22 Aug 2020", "Buy above Rs.500 and get Rs.100 flat discount"));
-                rewordsModelList.add(new RewordsModel("SELL", "Till 3 mar 2020", "Buy above Rs.300 and get Rs.50 flat discount"));
-                rewordsModelList.add(new RewordsModel("SELL", "Till 22 Aug 2020", "Buy above Rs.500 and get Rs.100 flat discount"));
-                rewordsModelList.add(new RewordsModel("DISCOUNT", "Till 1 Aug 2020", "Buy above Rs.1000 and get Rs.200 flat discount"));
+//                List<RewardsModel> rewardsModelList = new ArrayList<>();
+//                rewardsModelList.add(new RewardsModel("SELL", "Till 22 Aug 2020", "Buy above Rs.500 and get Rs.100 flat discount"));
+//                rewardsModelList.add(new RewardsModel("SELL", "Till 3 mar 2020", "Buy above Rs.300 and get Rs.50 flat discount"));
+//                rewardsModelList.add(new RewardsModel("SELL", "Till 22 Aug 2020", "Buy above Rs.500 and get Rs.100 flat discount"));
+//                rewardsModelList.add(new RewardsModel("DISCOUNT", "Till 1 Aug 2020", "Buy above Rs.1000 and get Rs.200 flat discount"));
 
-                RewordsAdapter rewordsAdapter = new RewordsAdapter(rewordsModelList, true);
-                coupensRecyclerView.setAdapter(rewordsAdapter);
-                rewordsAdapter.notifyDataSetChanged();
+//                RewordsAdapter rewordsAdapter = new RewordsAdapter(rewardsModelList, true);
+//                coupensRecyclerView.setAdapter(rewordsAdapter);
+//                rewordsAdapter.notifyDataSetChanged();
 
                 toggalRecyclerView.setOnClickListener(new View.OnClickListener() {
                     @Override

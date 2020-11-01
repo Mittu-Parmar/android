@@ -1,5 +1,6 @@
 package com.example.mymall.fragment;
 
+import android.app.Dialog;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,7 +13,8 @@ import android.view.ViewGroup;
 
 import com.example.mymall.R;
 import com.example.mymall.adapter.RewordsAdapter;
-import com.example.mymall.model.RewordsModel;
+import com.example.mymall.db_handler.DbQueries;
+import com.example.mymall.model.RewardsModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,8 @@ import java.util.List;
 public class RewardsFragment extends Fragment {
 
     RecyclerView rewordsRecyclerView;
+    Dialog loadingDialog;
+    public static RewordsAdapter rewordsAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -28,17 +32,22 @@ public class RewardsFragment extends Fragment {
         View view= inflater.inflate(R.layout.fragment_rewards, container, false);
         rewordsRecyclerView=view.findViewById(R.id.rewords_recycler_view);
 
+        loadingDialog = new Dialog(getContext());
+        loadingDialog.setContentView(R.layout.loading_progress_dialog);
+        loadingDialog.setCancelable(false);
+        loadingDialog.getWindow().setBackgroundDrawable(getContext().getDrawable(R.drawable.layout_background));
+        loadingDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        loadingDialog.show();
+
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
         rewordsRecyclerView.setLayoutManager(linearLayoutManager);
-
-        List<RewordsModel>rewordsModelList=new ArrayList<>();
-        rewordsModelList.add(new RewordsModel("SELL","Till 22 Aug 2020","Buy above Rs.500 and get Rs.100 flat discount"));
-        rewordsModelList.add(new RewordsModel("SELL","Till 22 Aug 2020","Buy above Rs.500 and get Rs.100 flat discount"));
-        rewordsModelList.add(new RewordsModel("SELL","Till 22 Aug 2020","Buy above Rs.500 and get Rs.100 flat discount"));
-        rewordsModelList.add(new RewordsModel("SELL","Till 22 Aug 2020","Buy above Rs.500 and get Rs.100 flat discount"));
-
-        RewordsAdapter rewordsAdapter=new RewordsAdapter(rewordsModelList,false);
+        if (DbQueries.rewardsModelList.size()==0){
+            DbQueries.loadRewards(getContext(),loadingDialog);
+        }else {
+            loadingDialog.dismiss();
+        }
+        rewordsAdapter=new RewordsAdapter(DbQueries.rewardsModelList,false);
         rewordsRecyclerView.setAdapter(rewordsAdapter);
         rewordsAdapter.notifyDataSetChanged();
 

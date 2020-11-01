@@ -184,6 +184,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
         //=========accessing quantity===========
         if (getQtyIDs) {
+            loadingDialog.show();
             for (int x = 0; x < cartItemModelList.size() - 1; x++) {
                 for (int y = 0; y < cartItemModelList.get(x).getProductQuantity(); y++) {
                     final String quantityDocumentName = UUID.randomUUID().toString().substring(0, 20);
@@ -192,44 +193,53 @@ public class DeliveryActivity extends AppCompatActivity {
                     final int finalX = x;
                     final int finalY = y;
                     firebaseFirestore.collection("products").document(cartItemModelList.get(x).getProductId()).collection("quantity").document(quantityDocumentName).set(timeStamp)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
-                                public void onSuccess(Void aVoid) {
-                                    cartItemModelList.get(finalX).getQtyIDs().add(quantityDocumentName);
-                                    if (finalY + 1 == cartItemModelList.get(finalX).getProductQuantity()) {
-                                        firebaseFirestore.collection("products").document(cartItemModelList.get(finalX).getProductId()).collection("quantity").orderBy("time", Query.Direction.ASCENDING).limit(cartItemModelList.get(finalX).getStockQuantity()).get()
-                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                        if (task.isSuccessful()) {
-                                                            List<String> serverQuantity = new ArrayList<>();
-                                                            for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
-                                                                serverQuantity.add(queryDocumentSnapshot.getId());
-                                                            }
-                                                            long availableQty = 0;
-                                                            boolean noLongerAvailable = true;
-                                                            for (String qtyId : cartItemModelList.get(finalX).getQtyIDs()) {
+                                public void onComplete(@NonNull Task<Void> task) {
 
-                                                                if (!serverQuantity.contains(qtyId)) {
-                                                                    if (noLongerAvailable) {
-                                                                        cartItemModelList.get(finalX).setInStock(false);
-                                                                    } else {
-                                                                        cartItemModelList.get(finalX).setQtyError(true);
-                                                                        cartItemModelList.get(finalX).setMaxQuantity(availableQty);
-                                                                        Toast.makeText(DeliveryActivity.this, "Sorry !, All products may not be available in required", Toast.LENGTH_SHORT).show();
-                                                                    }
-                                                                    allProductAvailable = false;
-                                                                } else {
-                                                                    availableQty++;
-                                                                    noLongerAvailable = false;
+                                    if (task.isSuccessful()) {
+
+                                        cartItemModelList.get(finalX).getQtyIDs().add(quantityDocumentName);
+                                        if (finalY + 1 == cartItemModelList.get(finalX).getProductQuantity()) {
+                                            firebaseFirestore.collection("products").document(cartItemModelList.get(finalX).getProductId()).collection("quantity").orderBy("time", Query.Direction.ASCENDING).limit(cartItemModelList.get(finalX).getStockQuantity()).get()
+                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                            if (task.isSuccessful()) {
+                                                                List<String> serverQuantity = new ArrayList<>();
+                                                                for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
+                                                                    serverQuantity.add(queryDocumentSnapshot.getId());
                                                                 }
+                                                                long availableQty = 0;
+                                                                boolean noLongerAvailable = true;
+                                                                for (String qtyId : cartItemModelList.get(finalX).getQtyIDs()) {
+                                                                    cartItemModelList.get(finalX).setQtyError(false);
+                                                                    if (!serverQuantity.contains(qtyId)) {
+                                                                        if (noLongerAvailable) {
+                                                                            cartItemModelList.get(finalX).setInStock(false);
+                                                                        } else {
+                                                                            cartItemModelList.get(finalX).setQtyError(true);
+                                                                            cartItemModelList.get(finalX).setMaxQuantity(availableQty);
+                                                                            Toast.makeText(DeliveryActivity.this, "Sorry !, All products may not be available in required", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                        allProductAvailable = false;
+                                                                    } else {
+                                                                        availableQty++;
+                                                                        noLongerAvailable = false;
+                                                                    }
+                                                                }
+                                                                cartAdapter.notifyDataSetChanged();
+                                                            } else {
+                                                                Toast.makeText(DeliveryActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                                             }
-                                                            cartAdapter.notifyDataSetChanged();
-                                                        } else {
-                                                            Toast.makeText(DeliveryActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                            loadingDialog.dismiss();
                                                         }
-                                                    }
-                                                });
+                                                    });
+                                        }
+
+                                    }else {
+                                        loadingDialog.dismiss();
+                                        Toast.makeText(DeliveryActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });

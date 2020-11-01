@@ -21,16 +21,19 @@ import com.example.mymall.adapter.CategoryAdapter;
 import com.example.mymall.adapter.HomeAdapter;
 import com.example.mymall.fragment.CartFragment;
 import com.example.mymall.fragment.HomeFragment;
+import com.example.mymall.fragment.RewardsFragment;
 import com.example.mymall.fragment.WishlistFragment;
 import com.example.mymall.model.AddressesModel;
 import com.example.mymall.model.CartItemModel;
 import com.example.mymall.model.CategoryModel;
 import com.example.mymall.model.HomeModel;
 import com.example.mymall.model.ProductItemModel;
+import com.example.mymall.model.RewardsModel;
 import com.example.mymall.model.SliderModel;
 import com.example.mymall.model.WishListModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,6 +42,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +70,8 @@ public class DbQueries {
 
     public static List<AddressesModel> addressModelList = new ArrayList<>();
     public static int selectedAddress = -1;
+
+    public static List<RewardsModel> rewardsModelList = new ArrayList<>();
 
     public static void loadCategories(final RecyclerView categoryRecyclerView, final Context context) {
 
@@ -486,6 +492,41 @@ public class DbQueries {
         });
     }
 
+    public static void loadRewards(final Context context, final Dialog loadingDialog) {
+        rewardsModelList.clear();
+        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user rewards").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                                if (documentSnapshot.get("type").toString().equals("discount")) {
+                                    rewardsModelList.add(new RewardsModel(
+                                            documentSnapshot.get("type").toString(),
+                                            documentSnapshot.get("lower limit").toString(),
+                                            documentSnapshot.get("upper limit").toString(),
+                                            documentSnapshot.get("percentage").toString(),
+                                            documentSnapshot.get("body").toString(),
+                                            (Date) documentSnapshot.get("validity")));
+                                } else {
+                                    rewardsModelList.add(new RewardsModel(
+                                            documentSnapshot.get("type").toString(),
+                                            documentSnapshot.get("lower limit").toString(),
+                                            documentSnapshot.get("upper limit").toString(),
+                                            documentSnapshot.get("amount").toString(),
+                                            documentSnapshot.get("body").toString(),
+                                            (Date) documentSnapshot.get("validity")));
+                                }
+                            }
+                            RewardsFragment.rewordsAdapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                        loadingDialog.dismiss();
+                    }
+                });
+    }
+
     public static void clearData() {
         categoryModelList.clear();
         lists.clear();
@@ -497,6 +538,7 @@ public class DbQueries {
         myRatedIds.clear();
         myRating.clear();
         addressModelList.clear();
+        rewardsModelList.clear();
     }
 }
 
