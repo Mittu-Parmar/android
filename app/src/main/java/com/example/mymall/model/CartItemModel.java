@@ -22,6 +22,7 @@ public class CartItemModel {
     private long coupenApplied;
     private boolean inStock;
     private List<String> qtyIDs;
+    private boolean qtyError;
 
     public CartItemModel(int type, String productId, String productImage, String productTitle, long freeCoupens, String productPrice, String cuttedPrice, long productQuantity, long offerceApplied, long coupenApplied, boolean inStock,long MaxQuantity, long stockQuantity) {
         this.type = type;
@@ -32,12 +33,22 @@ public class CartItemModel {
         this.productPrice = productPrice;
         this.cuttedPrice = cuttedPrice;
         this.productQuantity = productQuantity;
+        this.stockQuantity=stockQuantity;
         this.offerceApplied = offerceApplied;
         this.coupenApplied = coupenApplied;
         this.inStock=inStock;
         this.MaxQuantity = MaxQuantity;
         this.qtyIDs=new ArrayList<>();
-        this.stockQuantity=stockQuantity;
+        this.qtyError=qtyError;
+
+    }
+
+    public boolean isQtyError() {
+        return qtyError;
+    }
+
+    public void setQtyError(boolean qtyError) {
+        this.qtyError = qtyError;
     }
 
     public long getStockQuantity() {

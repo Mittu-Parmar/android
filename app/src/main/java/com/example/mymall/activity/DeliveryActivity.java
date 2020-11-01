@@ -69,8 +69,9 @@ public class DeliveryActivity extends AppCompatActivity {
     private String id;
     private boolean success = false;
     public static boolean fromCart;
-    private boolean allProductAvailable = true;
+    public static boolean allProductAvailable;
     public static boolean getQtyIDs = true;
+    public static CartAdapter cartAdapter;
 
     private FirebaseFirestore firebaseFirestore;
 
@@ -102,6 +103,7 @@ public class DeliveryActivity extends AppCompatActivity {
         id = UUID.randomUUID().toString().substring(0, 28);
         firebaseFirestore = FirebaseFirestore.getInstance();
         getQtyIDs = true;
+        allProductAvailable=true;
 
 
         addAddressButton = findViewById(R.id.add_address_btn);
@@ -119,7 +121,7 @@ public class DeliveryActivity extends AppCompatActivity {
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         deliveryRecyclerView.setLayoutManager(layoutManager);
 
-        CartAdapter cartAdapter = new CartAdapter(cartItemModelList, totalAmount, DeliveryActivity.this, false);
+        cartAdapter = new CartAdapter(cartItemModelList, totalAmount, DeliveryActivity.this, false);
         deliveryRecyclerView.setAdapter(cartAdapter);
         cartAdapter.notifyDataSetChanged();
 
@@ -204,15 +206,25 @@ public class DeliveryActivity extends AppCompatActivity {
                                                             for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
                                                                 serverQuantity.add(queryDocumentSnapshot.getId());
                                                             }
+                                                            long availableQty = 0;
+                                                            boolean noLongerAvailable = true;
                                                             for (String qtyId : cartItemModelList.get(finalX).getQtyIDs()) {
+
                                                                 if (!serverQuantity.contains(qtyId)) {
-                                                                    Toast.makeText(DeliveryActivity.this, "Sorry !, All products may not be available in required", Toast.LENGTH_SHORT).show();
+                                                                    if (noLongerAvailable) {
+                                                                        cartItemModelList.get(finalX).setInStock(false);
+                                                                    } else {
+                                                                        cartItemModelList.get(finalX).setQtyError(true);
+                                                                        cartItemModelList.get(finalX).setMaxQuantity(availableQty);
+                                                                        Toast.makeText(DeliveryActivity.this, "Sorry !, All products may not be available in required", Toast.LENGTH_SHORT).show();
+                                                                    }
                                                                     allProductAvailable = false;
-                                                                }
-                                                                if (serverQuantity.size() >= cartItemModelList.get(finalX).getStockQuantity()) {
-                                                                    firebaseFirestore.collection("products").document(cartItemModelList.get(finalX).getProductId()).update("in stock", false);
+                                                                } else {
+                                                                    availableQty++;
+                                                                    noLongerAvailable = false;
                                                                 }
                                                             }
+                                                            cartAdapter.notifyDataSetChanged();
                                                         } else {
                                                             Toast.makeText(DeliveryActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                                         }
@@ -223,40 +235,6 @@ public class DeliveryActivity extends AppCompatActivity {
                             });
                 }
 
-//                final int finalX = x;
-//                firebaseFirestore.collection("products").document(cartItemModelList.get(x).getProductId()).collection("quantity").orderBy("available", Query.Direction.DESCENDING).limit(cartItemModelList.get(x).getProductQuantity()).get()
-//                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                            @Override
-//                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                                if (task.isSuccessful()) {
-//
-//                                    for (final QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
-//
-//                                        if ((boolean) queryDocumentSnapshot.get("available")) {
-//                                            firebaseFirestore.collection("products").document(cartItemModelList.get(finalX).getProductId()).collection("quantity").document(queryDocumentSnapshot.getId()).update("available", false)
-//                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                                        @Override
-//                                                        public void onComplete(@NonNull Task<Void> task) {
-//                                                            if (task.isSuccessful()) {
-//                                                                cartItemModelList.get(finalX).getQtyIDs().add(queryDocumentSnapshot.getId());
-//                                                            } else {
-//                                                                Toast.makeText(DeliveryActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-//                                                            }
-//                                                        }
-//                                                    });
-//
-//                                        } else {
-//                                            //not available
-//                                            allProductAvailable = false;
-//                                            Toast.makeText(DeliveryActivity.this, "all products may not be available at required quantity", Toast.LENGTH_SHORT).show();
-//                                            break;
-//                                        }
-//                                    }
-//                                } else {
-//                                    Toast.makeText(DeliveryActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-//                                }
-//                            }
-//                        });
             }
         } else {
             getQtyIDs = true;
@@ -288,29 +266,15 @@ public class DeliveryActivity extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        if (qtyID.equals(cartItemModelList.get(finalX).getQtyIDs().get(cartItemModelList.get(finalX).getQtyIDs().size() - 1))){
+                                        if (qtyID.equals(cartItemModelList.get(finalX).getQtyIDs().get(cartItemModelList.get(finalX).getQtyIDs().size() - 1))) {
                                             cartItemModelList.get(finalX).getQtyIDs().clear();
-                                            firebaseFirestore.collection("products").document(cartItemModelList.get(finalX).getProductId()).collection("quantity").orderBy("time", Query.Direction.ASCENDING).get()
-                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                            if (task.isSuccessful()){
-                                                                if (task.getResult().getDocuments().size() < cartItemModelList.get(finalX).getStockQuantity()){
-                                                                    firebaseFirestore.collection("products").document(cartItemModelList.get(finalX).getProductId()).update("in stock", true);
-                                                                }
-                                                            }else {
-                                                                Toast.makeText(DeliveryActivity.this, ""+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        }
-                                                    });
                                         }
                                     }
                                 });
                     }
-                }else {
+                } else {
                     cartItemModelList.get(x).getQtyIDs().clear();
                 }
-
             }
         }
         //=========accessing quantity===========

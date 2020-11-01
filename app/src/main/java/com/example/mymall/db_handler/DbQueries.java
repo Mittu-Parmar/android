@@ -34,6 +34,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -129,7 +130,7 @@ public class DbQueries {
                                                 documentSnapshot.get("product price " + i).toString(),
                                                 documentSnapshot.get("cutted price " + i).toString(),
                                                 (boolean) documentSnapshot.get("cod " + i),
-                                                (boolean) documentSnapshot.get("in stock "+i)));
+                                                (boolean) documentSnapshot.get("in stock " + i)));
                                     }
                                     lists.get(index).add(new HomeModel(HomeModel.HORIZONTAL_PRODUCT_VIEW, documentSnapshot.get("layout title").toString(), productItemModelList, viewAllprodectModelList));
 
@@ -191,19 +192,43 @@ public class DbQueries {
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.isSuccessful()) {
 
-                                        wishListModelList.add(new WishListModel(
-                                                productId,
-                                                task.getResult().get("product image 1").toString(),
-                                                task.getResult().get("product title").toString(),
-                                                (long) task.getResult().get("free coupens"),
-                                                task.getResult().get("average rating").toString(),
-                                                (long) task.getResult().get("total ratings"),
-                                                task.getResult().get("product price").toString(),
-                                                task.getResult().get("cutted price").toString(),
-                                                (boolean) task.getResult().get("cod"),
-                                                (boolean) task.getResult().get("in stock")));
-
-                                        WishlistFragment.wishlistAdapter.notifyDataSetChanged();
+                                        final DocumentSnapshot documentSnapshot = task.getResult();
+                                        FirebaseFirestore.getInstance().collection("products").document(productId).collection("quantity").orderBy("time", Query.Direction.ASCENDING).get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            if (task.getResult().getDocuments().size() < (long) documentSnapshot.get("stock quantity")) {
+                                                                wishListModelList.add(new WishListModel(
+                                                                        productId,
+                                                                        documentSnapshot.get("product image 1").toString(),
+                                                                        documentSnapshot.get("product title").toString(),
+                                                                        (long) documentSnapshot.get("free coupens"),
+                                                                        documentSnapshot.get("average rating").toString(),
+                                                                        (long) documentSnapshot.get("total ratings"),
+                                                                        documentSnapshot.get("product price").toString(),
+                                                                        documentSnapshot.get("cutted price").toString(),
+                                                                        (boolean) documentSnapshot.get("cod"),
+                                                                        true));
+                                                            } else {
+                                                                wishListModelList.add(new WishListModel(
+                                                                        productId,
+                                                                        documentSnapshot.get("product image 1").toString(),
+                                                                        documentSnapshot.get("product title").toString(),
+                                                                        (long) documentSnapshot.get("free coupens"),
+                                                                        documentSnapshot.get("average rating").toString(),
+                                                                        (long) documentSnapshot.get("total ratings"),
+                                                                        documentSnapshot.get("product price").toString(),
+                                                                        documentSnapshot.get("cutted price").toString(),
+                                                                        (boolean) documentSnapshot.get("cod"),
+                                                                        false));
+                                                            }
+                                                            WishlistFragment.wishlistAdapter.notifyDataSetChanged();
+                                                        } else {
+                                                            Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
                                     } else {
                                         Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     }
@@ -219,7 +244,7 @@ public class DbQueries {
         });
     }
 
-    public static void loadCartList(final Context context, final Dialog dialog, final boolean loadProductData, final TextView bedgeCount,final  TextView cartTotalAmount) {
+    public static void loadCartList(final Context context, final Dialog dialog, final boolean loadProductData, final TextView bedgeCount, final TextView cartTotalAmount) {
 
         cartList.clear();
         firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my cart")
@@ -244,34 +269,66 @@ public class DbQueries {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.isSuccessful()) {
-                                        int index = 0;
-                                        if (cartList.size() >= 2) {
-                                            index = cartList.size() - 2;
-                                        }
-                                        cartItemModelList.add(index, new CartItemModel(
-                                                CartItemModel.CART_ITEM,
-                                                productId,
-                                                task.getResult().get("product image 1").toString(),
-                                                task.getResult().get("product title").toString(),
-                                                (long) task.getResult().get("free coupens"),
-                                                task.getResult().get("product price").toString(),
-                                                task.getResult().get("cutted price").toString(),
-                                                1,
-                                                0,
-                                                0,
-                                                (boolean) task.getResult().get("in stock"),
-                                                (long) task.getResult().get("max quantity"),
-                                                (long) task.getResult().get("stock quantity")));
 
-                                        if (cartList.size() == 1) {
-                                            cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
-                                            LinearLayout parent= (LinearLayout) cartTotalAmount.getParent().getParent();
-                                            parent.setVisibility(View.VISIBLE);
-                                        }
-                                        if (cartList.size() == 0) {
-                                            cartItemModelList.clear();
-                                        }
-                                        CartFragment.cartAdapter.notifyDataSetChanged();
+
+                                        final DocumentSnapshot documentSnapshot = task.getResult();
+                                        FirebaseFirestore.getInstance().collection("products").document(productId).collection("quantity").orderBy("time", Query.Direction.ASCENDING).get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if (task.isSuccessful()) {
+
+                                                            int index = 0;
+                                                            if (cartList.size() >= 2) {
+                                                                index = cartList.size() - 2;
+                                                            }
+
+                                                            if (task.getResult().getDocuments().size() < (long) documentSnapshot.get("stock quantity")) {
+                                                                cartItemModelList.add(index, new CartItemModel(
+                                                                        CartItemModel.CART_ITEM,
+                                                                        productId,
+                                                                        documentSnapshot.get("product image 1").toString(),
+                                                                        documentSnapshot.get("product title").toString(),
+                                                                        (long) documentSnapshot.get("free coupens"),
+                                                                        documentSnapshot.get("product price").toString(),
+                                                                        documentSnapshot.get("cutted price").toString(),
+                                                                        1,
+                                                                        0,
+                                                                        0,
+                                                                        true,
+                                                                        (long) documentSnapshot.get("max quantity"),
+                                                                        (long) documentSnapshot.get("stock quantity")));
+
+                                                            } else {
+                                                                cartItemModelList.add(index, new CartItemModel(
+                                                                        CartItemModel.CART_ITEM,
+                                                                        productId,
+                                                                        documentSnapshot.get("product image 1").toString(),
+                                                                        documentSnapshot.get("product title").toString(),
+                                                                        (long) documentSnapshot.get("free coupens"),
+                                                                        documentSnapshot.get("product price").toString(),
+                                                                        documentSnapshot.get("cutted price").toString(),
+                                                                        1,
+                                                                        0,
+                                                                        0,
+                                                                        false,
+                                                                        (long) documentSnapshot.get("max quantity"),
+                                                                        (long) documentSnapshot.get("stock quantity")));
+                                                            }
+                                                            if (cartList.size() == 1) {
+                                                                cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
+                                                                LinearLayout parent = (LinearLayout) cartTotalAmount.getParent().getParent();
+                                                                parent.setVisibility(View.VISIBLE);
+                                                            }
+                                                            if (cartList.size() == 0) {
+                                                                cartItemModelList.clear();
+                                                            }
+                                                            CartFragment.cartAdapter.notifyDataSetChanged();
+                                                        } else {
+                                                            Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
                                     } else {
                                         Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     }
@@ -350,7 +407,7 @@ public class DbQueries {
                         CartFragment.cartAdapter.notifyDataSetChanged();
                     }
                     if (cartList.size() == 0) {
-                        LinearLayout parent= (LinearLayout) cartTotalAmount.getParent().getParent();
+                        LinearLayout parent = (LinearLayout) cartTotalAmount.getParent().getParent();
                         parent.setVisibility(View.GONE);
                         cartItemModelList.clear();
                     }
@@ -413,7 +470,7 @@ public class DbQueries {
                                     task.getResult().get("address " + x).toString(),
                                     task.getResult().get("pincode " + x).toString(),
                                     (boolean) task.getResult().get("selected " + x),
-                                    task.getResult().get("mobile no "+x).toString()));
+                                    task.getResult().get("mobile no " + x).toString()));
                             if ((boolean) task.getResult().get("selected " + x)) {
                                 selectedAddress = Integer.parseInt(String.valueOf(x - 1));
                             }
