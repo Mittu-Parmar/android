@@ -63,12 +63,14 @@ public class ProductDetailsActivity extends AppCompatActivity {
     public static boolean runningCartQuery = false;
 
     //    =============coupen Dialog================
-    public static TextView coupenTitle;
-    public static TextView coupenExpiryDate;
-    public static TextView coupenBody;
+    private TextView coupenTitle;
+    private TextView coupenExpiryDate;
+    private TextView coupenBody;
 
-    private static RecyclerView coupensRecyclerView;
-    private static LinearLayout selectedCoupenLinearLayout;
+    private RecyclerView coupensRecyclerView;
+    private LinearLayout selectedCoupen;
+    private TextView discountedPrice;
+    private TextView originalPrice;
 //    =============coupen Dialog================
 
 
@@ -84,6 +86,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     ViewPager productImagesViewPager;
     TextView productTitle;
     TextView productPrice;
+    String productOriginalPrice;
     TextView cuttedtPrice;
     TextView codIndicatorTextView;
     ImageView codIndicatorImageView;
@@ -122,6 +125,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private LinearLayout coupenRedeemLayout;
     Button coupenRedeemButton;
+    private LinearLayout applyOrRemoveButtonContainer;
+    private TextView footerText;
     FirebaseFirestore firebaseFirestore;
     private static FirebaseUser currentUser;
     private TextView bedgeCount;
@@ -173,12 +178,55 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         initialRating = -1;
 
+        //    =============loaing Dialog================
         loadingDialog = new Dialog(ProductDetailsActivity.this);
         loadingDialog.setContentView(R.layout.loading_progress_dialog);
         loadingDialog.setCancelable(false);
         loadingDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.layout_background));
         loadingDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         loadingDialog.show();
+        //    =============loaing Dialog================
+
+        //    =============coupen Dialog================
+                final Dialog checkCoupenPriceDialog = new Dialog(ProductDetailsActivity.this);
+                checkCoupenPriceDialog.setContentView(R.layout.coupem_redeem_dialog);
+                checkCoupenPriceDialog.setCancelable(true);
+                checkCoupenPriceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                ImageView toggalRecyclerView = checkCoupenPriceDialog.findViewById(R.id.toggal_recycler_view);
+                coupensRecyclerView = checkCoupenPriceDialog.findViewById(R.id.coupens_recycler_view);
+                selectedCoupen = checkCoupenPriceDialog.findViewById(R.id.selected_coupen);
+                coupenTitle = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_title);
+                coupenExpiryDate = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_validity);
+                coupenBody = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_body);
+
+                originalPrice = checkCoupenPriceDialog.findViewById(R.id.original_price);
+                discountedPrice = checkCoupenPriceDialog.findViewById(R.id.discounted_price);
+
+                footerText = checkCoupenPriceDialog.findViewById(R.id.footer_text);
+                footerText.setVisibility(View.VISIBLE);
+                applyOrRemoveButtonContainer = checkCoupenPriceDialog.findViewById(R.id.apply_or_remove_buttons_container);
+                applyOrRemoveButtonContainer.setVisibility(View.GONE);
+
+                LinearLayoutManager layoutManager = new LinearLayoutManager(ProductDetailsActivity.this);
+                layoutManager.setOrientation(RecyclerView.VERTICAL);
+                coupensRecyclerView.setLayoutManager(layoutManager);
+
+                toggalRecyclerView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showDialogRecyclerView();
+                    }
+                });
+
+                coupenRedeemButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        checkCoupenPriceDialog.show();
+                    }
+                });
+
+//    =============coupen Dialog================
 
 
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -209,6 +257,15 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                         averageRatingMiniView.setText(documentSnapshot.get("average rating").toString());
                                         totalRatingMiniView.setText("(" + (long) documentSnapshot.get("total ratings") + " ratings)");
                                         productPrice.setText("Rs." + documentSnapshot.get("product price").toString() + "/");
+
+                                        //    =============coupen Dialog================
+                                        originalPrice.setText(productPrice.getText());
+                                        productOriginalPrice=documentSnapshot.get("product price").toString();
+                                        RewordsAdapter rewordsAdapter = new RewordsAdapter(DbQueries.rewardsModelList, true,coupensRecyclerView,selectedCoupen,productOriginalPrice,coupenTitle,coupenExpiryDate,coupenBody,discountedPrice);
+                                        coupensRecyclerView.setAdapter(rewordsAdapter);
+                                        rewordsAdapter.notifyDataSetChanged();
+                                        //    =============coupen Dialog================
+
                                         cuttedtPrice.setText("Rs." + documentSnapshot.get("cutted price").toString() + "/");
                                         if ((boolean) documentSnapshot.get("cod")) {
                                             codIndicatorImageView.setVisibility(View.VISIBLE);
@@ -264,7 +321,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                             }
                                             if (DbQueries.wishList.size() == 0) {
                                                 DbQueries.loadWishList(ProductDetailsActivity.this, loadingDialog, false);
-                                            } else {
+                                            }
+                                            if (DbQueries.rewardsModelList.size()==0){
+                                                DbQueries.loadRewards(ProductDetailsActivity.this,loadingDialog,false);
+                                            }
+                                            if (DbQueries.cartList.size() != 0 && DbQueries.wishList.size() != 0 && DbQueries.rewardsModelList.size()!=0){
                                                 loadingDialog.dismiss();
                                             }
                                         } else {
@@ -596,50 +657,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
             }
         });
 
-        coupenRedeemButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Dialog checkCoupenPriceDialog = new Dialog(ProductDetailsActivity.this);
-                checkCoupenPriceDialog.setContentView(R.layout.coupem_redeem_dialog);
-                checkCoupenPriceDialog.setCancelable(true);
-                checkCoupenPriceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-                ImageView toggalRecyclerView = checkCoupenPriceDialog.findViewById(R.id.toggal_recycler_view);
-                coupensRecyclerView = checkCoupenPriceDialog.findViewById(R.id.coupens_recycler_view);
-                selectedCoupenLinearLayout = checkCoupenPriceDialog.findViewById(R.id.selected_coupen);
-
-                coupenTitle = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_title);
-                coupenExpiryDate = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_validity);
-                coupenBody = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_body);
-
-                TextView originalPrice = checkCoupenPriceDialog.findViewById(R.id.original_price);
-                TextView discountedPrice = checkCoupenPriceDialog.findViewById(R.id.discounted_price);
-
-                LinearLayoutManager layoutManager = new LinearLayoutManager(ProductDetailsActivity.this);
-                layoutManager.setOrientation(RecyclerView.VERTICAL);
-                coupensRecyclerView.setLayoutManager(layoutManager);
-
-//                List<RewardsModel> rewardsModelList = new ArrayList<>();
-//                rewardsModelList.add(new RewardsModel("SELL", "Till 22 Aug 2020", "Buy above Rs.500 and get Rs.100 flat discount"));
-//                rewardsModelList.add(new RewardsModel("SELL", "Till 3 mar 2020", "Buy above Rs.300 and get Rs.50 flat discount"));
-//                rewardsModelList.add(new RewardsModel("SELL", "Till 22 Aug 2020", "Buy above Rs.500 and get Rs.100 flat discount"));
-//                rewardsModelList.add(new RewardsModel("DISCOUNT", "Till 1 Aug 2020", "Buy above Rs.1000 and get Rs.200 flat discount"));
-
-//                RewordsAdapter rewordsAdapter = new RewordsAdapter(rewardsModelList, true);
-//                coupensRecyclerView.setAdapter(rewordsAdapter);
-//                rewordsAdapter.notifyDataSetChanged();
-
-                toggalRecyclerView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showDialogRecyclerView();
-                    }
-                });
-
-                checkCoupenPriceDialog.show();
-            }
-        });
-
 //        ==========sign in up dialog=========
 
         signInOutDialog = new Dialog(ProductDetailsActivity.this);
@@ -682,14 +699,14 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     }
 
-    public static void showDialogRecyclerView() {
+    private void showDialogRecyclerView() {
 
         if (coupensRecyclerView.getVisibility() == View.GONE) {
             coupensRecyclerView.setVisibility(View.VISIBLE);
-            selectedCoupenLinearLayout.setVisibility(View.GONE);
+            selectedCoupen.setVisibility(View.GONE);
         } else {
             coupensRecyclerView.setVisibility(View.GONE);
-            selectedCoupenLinearLayout.setVisibility(View.VISIBLE);
+            selectedCoupen.setVisibility(View.VISIBLE);
         }
 
     }

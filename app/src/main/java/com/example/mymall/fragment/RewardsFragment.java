@@ -43,7 +43,7 @@ public class RewardsFragment extends Fragment {
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
         rewordsRecyclerView.setLayoutManager(linearLayoutManager);
         if (DbQueries.rewardsModelList.size()==0){
-            DbQueries.loadRewards(getContext(),loadingDialog);
+            DbQueries.loadRewards(getContext(),loadingDialog,true);
         }else {
             loadingDialog.dismiss();
         }

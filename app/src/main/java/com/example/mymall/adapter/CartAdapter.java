@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -150,16 +151,33 @@ public class CartAdapter extends RecyclerView.Adapter {
 
     class CartItemViewHolder extends RecyclerView.ViewHolder {
 
-        LinearLayout removeItemBtn;
-        ImageView productImage;
-        TextView productTitle;
-        TextView freeCoupens;
-        TextView productPrice;
-        TextView cuttedPrice;
-        TextView productQuantity;
-        TextView offerceApplied;
-        TextView coupenApplied;
-        LinearLayout coupenRedemptionLayout;
+        private LinearLayout removeItemBtn;
+        private ImageView productImage;
+        private TextView productTitle;
+        private TextView freeCoupens;
+        private TextView productPrice;
+        private TextView cuttedPrice;
+        private TextView productQuantity;
+        private TextView offerceApplied;
+        private TextView coupenApplied;
+        private LinearLayout coupenRedemptionLayout;
+        private Button redeemButton;
+
+
+        //    =============coupen Dialog================
+        private TextView coupenTitle;
+        private TextView coupenExpiryDate;
+        private TextView coupenBody;
+
+        private RecyclerView coupensRecyclerView;
+        private LinearLayout selectedCoupen;
+        private TextView discountedPrice;
+        private TextView originalPrice;
+        private Button removeCoupenButton, applyCoupenButton;
+        private LinearLayout applyOrRemoveButtonContainer;
+        private TextView footerText;
+        private String productOriginalPrice;
+//    =============coupen Dialog================
 
         public CartItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -174,10 +192,11 @@ public class CartAdapter extends RecyclerView.Adapter {
             this.offerceApplied = itemView.findViewById(R.id.cart_offer_applied);
             this.coupenApplied = itemView.findViewById(R.id.cart_coupen_applied);
             this.coupenRedemptionLayout = itemView.findViewById(R.id.coupen_redemption_layout);
+            this.redeemButton = itemView.findViewById(R.id.coupen_redeemption_button);
         }
 
 
-        void setCartItemDetails(final String productId, String productImage, String productTitle, long freeCoupens, String productPrice, String cuttedPrice, long offerceApplied, final int position, boolean inStock, final String quantity, final long maxQuantity, boolean qtyError, final List<String> qtyIds, final long stockQty) {
+        void setCartItemDetails(final String productId, String productImage, String productTitle, long freeCoupens, final String productPriceText, String cuttedPrice, long offerceApplied, final int position, boolean inStock, final String quantity, final long maxQuantity, boolean qtyError, final List<String> qtyIds, final long stockQty) {
 
             Glide.with(itemView.getContext()).load(productImage).apply(new RequestOptions()).placeholder(R.drawable.place_holder_icon).into(this.productImage);
 
@@ -195,7 +214,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                     this.freeCoupens.setVisibility(View.INVISIBLE);
                 }
 
-                this.productPrice.setText("Rs." + productPrice + "/-");
+                this.productPrice.setText("Rs." + productPriceText + "/-");
                 this.productPrice.setTextColor(Color.parseColor("#000000"));
                 this.cuttedPrice.setText("Rs." + cuttedPrice + "/-");
                 coupenRedemptionLayout.setVisibility(View.VISIBLE);
@@ -220,7 +239,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                         final EditText quantityNo = quantityDialog.findViewById(R.id.quantity_edit_text);
                         Button cancelButton = quantityDialog.findViewById(R.id.cancel_btn);
                         Button okButton = quantityDialog.findViewById(R.id.ok_btn);
-                        quantityNo.setHint("Max "+maxQuantity);
+                        quantityNo.setHint("Max " + maxQuantity);
 
                         cancelButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -299,7 +318,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                                             } else if (initialQty > finalQty) {
 
                                                 for (int x = 0; x < initialQty - finalQty; x++) {
-                                                    final String qtyId =qtyIds.get(qtyIds.size() - 1 - x);
+                                                    final String qtyId = qtyIds.get(qtyIds.size() - 1 - x);
                                                     firebaseFirestore.collection("products").document(productId).collection("quantity").document(qtyId).delete()
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override
@@ -348,6 +367,62 @@ public class CartAdapter extends RecyclerView.Adapter {
                 removeItemBtn.setVisibility(View.GONE);
             }
 
+            redeemButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    //    =============coupen Dialog================
+                    final Dialog checkCoupenPriceDialog = new Dialog(itemView.getContext());
+                    checkCoupenPriceDialog.setContentView(R.layout.coupem_redeem_dialog);
+                    checkCoupenPriceDialog.setCancelable(true);
+                    checkCoupenPriceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                    ImageView toggalRecyclerView = checkCoupenPriceDialog.findViewById(R.id.toggal_recycler_view);
+                    coupensRecyclerView = checkCoupenPriceDialog.findViewById(R.id.coupens_recycler_view);
+                    selectedCoupen = checkCoupenPriceDialog.findViewById(R.id.selected_coupen);
+                    coupenTitle = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_title);
+                    coupenExpiryDate = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_validity);
+                    coupenBody = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_body);
+
+                    removeCoupenButton = checkCoupenPriceDialog.findViewById(R.id.remove_btn);
+                    applyCoupenButton = checkCoupenPriceDialog.findViewById(R.id.apply_btn);
+                    footerText = checkCoupenPriceDialog.findViewById(R.id.footer_text);
+                    applyOrRemoveButtonContainer = checkCoupenPriceDialog.findViewById(R.id.apply_or_remove_buttons_container);
+
+                    footerText.setVisibility(View.GONE);
+                    applyOrRemoveButtonContainer.setVisibility(View.VISIBLE);
+
+                    originalPrice = checkCoupenPriceDialog.findViewById(R.id.original_price);
+                    discountedPrice = checkCoupenPriceDialog.findViewById(R.id.discounted_price);
+
+                    LinearLayoutManager layoutManager = new LinearLayoutManager(itemView.getContext());
+                    layoutManager.setOrientation(RecyclerView.VERTICAL);
+                    coupensRecyclerView.setLayoutManager(layoutManager);
+
+                    //    =============coupen Dialog================
+                    originalPrice.setText(productPrice.getText());
+                    productOriginalPrice = productPriceText;
+                    RewordsAdapter rewordsAdapter = new RewordsAdapter(DbQueries.rewardsModelList, true, coupensRecyclerView, selectedCoupen, productOriginalPrice, coupenTitle, coupenExpiryDate, coupenBody, discountedPrice);
+                    coupensRecyclerView.setAdapter(rewordsAdapter);
+                    rewordsAdapter.notifyDataSetChanged();
+                    //    =============coupen Dialog================
+
+
+                    toggalRecyclerView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showDialogRecyclerView();
+                        }
+                    });
+
+                    checkCoupenPriceDialog.show();
+
+//    =============coupen Dialog================
+
+
+                }
+            });
+
             removeItemBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -359,8 +434,19 @@ public class CartAdapter extends RecyclerView.Adapter {
                 }
             });
         }
-    }
 
+        private void showDialogRecyclerView() {
+
+            if (coupensRecyclerView.getVisibility() == View.GONE) {
+                coupensRecyclerView.setVisibility(View.VISIBLE);
+                selectedCoupen.setVisibility(View.GONE);
+            } else {
+                coupensRecyclerView.setVisibility(View.GONE);
+                selectedCoupen.setVisibility(View.VISIBLE);
+            }
+
+        }
+    }
 
     class CartTotalAmountViewHolder extends RecyclerView.ViewHolder {
 
@@ -398,7 +484,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                     DbQueries.cartItemModelList.remove(DbQueries.cartItemModelList.size() - 1);
                     DeliveryActivity.cartItemModelList.remove(DbQueries.cartItemModelList.size() - 1);
                 }
-                if (showDeleteButton){
+                if (showDeleteButton) {
                     DbQueries.cartItemModelList.remove(DbQueries.cartItemModelList.size() - 1);
                 }
                 parent.setVisibility(View.GONE);

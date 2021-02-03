@@ -1,17 +1,18 @@
 package com.example.mymall.adapter;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mymall.R;
-import com.example.mymall.activity.ProductDetailsActivity;
 import com.example.mymall.model.RewardsModel;
-import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,10 +22,29 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
 
     List<RewardsModel> rewardsModelList;
     boolean useMiniLayout = false;
+    RecyclerView coupensRecyclerView;
+    LinearLayout selectedCoupen;
+    private String productOriginalPrice;
+    private TextView selectedCoupenTitle;
+    private TextView selectedCoupenExpiryDate;
+    private TextView selectedCoupenBody;
+    private TextView discountedPrice;
 
     public RewordsAdapter(List<RewardsModel> rewardsModelList, boolean useMiniLayout) {
         this.rewardsModelList = rewardsModelList;
         this.useMiniLayout = useMiniLayout;
+    }
+
+    public RewordsAdapter(List<RewardsModel> rewardsModelList, boolean useMiniLayout, RecyclerView coupensRecyclerView, LinearLayout selectedCoupen, String productOriginalPrice, TextView coupenTitle, TextView coupenExpiryDate, TextView coupenBody, TextView discountedPrice) {
+        this.rewardsModelList = rewardsModelList;
+        this.useMiniLayout = useMiniLayout;
+        this.coupensRecyclerView=coupensRecyclerView;
+        this.selectedCoupen=selectedCoupen;
+        this.productOriginalPrice = productOriginalPrice;
+        this.selectedCoupenTitle = coupenTitle;
+        this.selectedCoupenExpiryDate = coupenExpiryDate;
+        this.selectedCoupenBody = coupenBody;
+        this.discountedPrice = discountedPrice;
     }
 
     @NonNull
@@ -46,8 +66,9 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
         String lowerLimit = rewardsModelList.get(position).getLowerLimit();
         String upperLimit = rewardsModelList.get(position).getUpperLimit();
         String disORamt = rewardsModelList.get(position).getDisORamt();
+        Boolean alreadyUsed = rewardsModelList.get(position).getAlreadyUsed();
 
-        holder.setDetails(type, date, body, lowerLimit, upperLimit, disORamt);
+        holder.setDetails(type, date, body, lowerLimit, upperLimit, disORamt,alreadyUsed);
 
     }
 
@@ -58,37 +79,70 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView rewordsTitle;
-        TextView rewordsValidity;
-        TextView rewordsBody;
+        private TextView coupenTitle;
+        private TextView coupenExpiryDate;
+        private TextView coupenBody;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            this.rewordsTitle = itemView.findViewById(R.id.rewords_item_coupen_title);
-            this.rewordsValidity = itemView.findViewById(R.id.rewords_item_coupen_validity);
-            this.rewordsBody = itemView.findViewById(R.id.rewords_item_coupen_body);
+            this.coupenTitle = itemView.findViewById(R.id.rewords_item_coupen_title);
+            this.coupenExpiryDate = itemView.findViewById(R.id.rewords_item_coupen_validity);
+            this.coupenBody = itemView.findViewById(R.id.rewords_item_coupen_body);
         }
 
-        private void setDetails(final String type, final Date validity, final String body, String lowerLimit, String upperLimit, String disORamt) {
+        private void setDetails(final String type, final Date validity, final String body, final String lowerLimit, final String upperLimit, final String disORamt, final Boolean alreadyUsed) {
 
             if (type.equals("discount")) {
-                this.rewordsTitle.setText(type);
+                this.coupenTitle.setText(type);
             } else {
-                this.rewordsTitle.setText("Flat RS." + disORamt + " OFF");
+                this.coupenTitle.setText("Flat RS." + disORamt + " OFF");
             }
+
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM YYYY");
-            this.rewordsValidity.setText(" Till "+simpleDateFormat.format(validity));
-            this.rewordsBody.setText(body);
+            if (alreadyUsed){
+                this.coupenExpiryDate.setText("Already used");
+                this.coupenExpiryDate.setTextColor(itemView.getContext().getResources().getColor(R.color.colorPrimary));
+                this.coupenBody.setTextColor(Color.parseColor("#60ffffff"));
+                this.coupenTitle.setTextColor(Color.parseColor("#70ffffff"));
+            }else {
+                this.coupenExpiryDate.setText(" Till " + simpleDateFormat.format(validity));
+                this.coupenExpiryDate.setTextColor(itemView.getContext().getResources().getColor(R.color.coupenPurpal));
+                this.coupenBody.setTextColor(Color.parseColor("#ffffff"));
+                this.coupenTitle.setTextColor(Color.parseColor("#ffffff"));
+            }
+
+            this.coupenBody.setText(body);
 
             if (useMiniLayout) {
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ProductDetailsActivity.coupenTitle.setText(type);
-                        ProductDetailsActivity.coupenExpiryDate.setText(simpleDateFormat.format(validity));
-                        ProductDetailsActivity.coupenBody.setText(body);
-                        ProductDetailsActivity.showDialogRecyclerView();
+
+                        if (!alreadyUsed) {
+                            selectedCoupenTitle.setText(type);
+                            selectedCoupenExpiryDate.setText(simpleDateFormat.format(validity));
+                            selectedCoupenBody.setText(body);
+
+                            if (Long.valueOf(productOriginalPrice) > Long.valueOf(lowerLimit) && Long.valueOf(productOriginalPrice) < Long.valueOf(upperLimit)) {
+                                if (type.equals("discount")) {
+                                    long discountAmount = Long.valueOf(productOriginalPrice) * Long.valueOf(disORamt) / 100;
+                                    discountedPrice.setText("RS." + String.valueOf(Long.valueOf(productOriginalPrice) - discountAmount) + "/-");
+                                } else {
+                                    discountedPrice.setText("RS." + String.valueOf(Long.valueOf(productOriginalPrice) - Long.valueOf(disORamt)) + "/-");
+                                }
+                            } else {
+                                discountedPrice.setText("Invalid");
+                                Toast.makeText(itemView.getContext(), "Sorry ! Product does not matches the coupen terms", Toast.LENGTH_SHORT).show();
+                            }
+                            if (coupensRecyclerView.getVisibility() == View.GONE) {
+                                coupensRecyclerView.setVisibility(View.VISIBLE);
+                                selectedCoupen.setVisibility(View.GONE);
+                            } else {
+                                coupensRecyclerView.setVisibility(View.GONE);
+                                selectedCoupen.setVisibility(View.VISIBLE);
+                            }
+                        }
                     }
                 });
             }

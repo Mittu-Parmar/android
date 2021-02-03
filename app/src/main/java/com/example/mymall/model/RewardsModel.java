@@ -11,14 +11,24 @@ public class RewardsModel {
     private String disORamt;
     private String body;
     private Date date;
+    private Boolean alreadyUsed;
 
-    public RewardsModel(String type, String lowerLimit, String upperLimit, String disORamt, String body, Date date) {
+    public RewardsModel(String type, String lowerLimit, String upperLimit, String disORamt, String body, Date date, Boolean alreadyUsed) {
         this.type = type;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
         this.disORamt = disORamt;
         this.body = body;
         this.date = date;
+        this.alreadyUsed=alreadyUsed;
+    }
+
+    public Boolean getAlreadyUsed() {
+        return alreadyUsed;
+    }
+
+    public void setAlreadyUsed(Boolean alreadyUsed) {
+        this.alreadyUsed = alreadyUsed;
     }
 
     public String getType() {

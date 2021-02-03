@@ -100,6 +100,11 @@ public class CartFragment extends Fragment {
 
         cartAdapter.notifyDataSetChanged();
 
+        if (DbQueries.rewardsModelList.size()==0){
+            loadingDialog.show();
+            DbQueries.loadRewards(getContext(),loadingDialog,false);
+        }
+
         LinearLayout parent= (LinearLayout) totalAmount.getParent().getParent();
         if (DbQueries.cartItemModelList.size()==0){
             parent.setVisibility(View.GONE);

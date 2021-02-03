@@ -492,37 +492,55 @@ public class DbQueries {
         });
     }
 
-    public static void loadRewards(final Context context, final Dialog loadingDialog) {
+    public static void loadRewards(final Context context, final Dialog loadingDialog, final boolean onRewardFragment) {
         rewardsModelList.clear();
-        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user rewards").get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
+        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                                if (documentSnapshot.get("type").toString().equals("discount")) {
-                                    rewardsModelList.add(new RewardsModel(
-                                            documentSnapshot.get("type").toString(),
-                                            documentSnapshot.get("lower limit").toString(),
-                                            documentSnapshot.get("upper limit").toString(),
-                                            documentSnapshot.get("percentage").toString(),
-                                            documentSnapshot.get("body").toString(),
-                                            (Date) documentSnapshot.get("validity")));
-                                } else {
-                                    rewardsModelList.add(new RewardsModel(
-                                            documentSnapshot.get("type").toString(),
-                                            documentSnapshot.get("lower limit").toString(),
-                                            documentSnapshot.get("upper limit").toString(),
-                                            documentSnapshot.get("amount").toString(),
-                                            documentSnapshot.get("body").toString(),
-                                            (Date) documentSnapshot.get("validity")));
-                                }
-                            }
-                            RewardsFragment.rewordsAdapter.notifyDataSetChanged();
+                            final Date lastSeenDate = task.getResult().getDate("last seen");
+
+                            firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user rewards").get()
+                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                                                    if (documentSnapshot.get("type").toString().equals("discount") && lastSeenDate.before(documentSnapshot.getDate("validity"))) {
+                                                        rewardsModelList.add(new RewardsModel(
+                                                                documentSnapshot.get("type").toString(),
+                                                                documentSnapshot.get("lower limit").toString(),
+                                                                documentSnapshot.get("upper limit").toString(),
+                                                                documentSnapshot.get("percentage").toString(),
+                                                                documentSnapshot.get("body").toString(),
+                                                                (Date) documentSnapshot.get("validity"),
+                                                                (Boolean) documentSnapshot.getBoolean("already used")));
+                                                    } else if (documentSnapshot.get("type").toString().equals("Flat Rs.*OFF") && lastSeenDate.before(documentSnapshot.getDate("validity"))) {
+                                                        rewardsModelList.add(new RewardsModel(
+                                                                documentSnapshot.get("type").toString(),
+                                                                documentSnapshot.get("lower limit").toString(),
+                                                                documentSnapshot.get("upper limit").toString(),
+                                                                documentSnapshot.get("amount").toString(),
+                                                                documentSnapshot.get("body").toString(),
+                                                                (Date) documentSnapshot.get("validity"),
+                                                                (Boolean) documentSnapshot.getBoolean("already used")));
+                                                    }
+                                                }
+                                                if (onRewardFragment) {
+                                                    RewardsFragment.rewordsAdapter.notifyDataSetChanged();
+                                                }
+                                            } else {
+                                                Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                            loadingDialog.dismiss();
+                                        }
+                                    });
+
                         } else {
                             Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                        loadingDialog.dismiss();
                     }
                 });
     }
