@@ -299,7 +299,7 @@ public class DbQueries {
                                                                         documentSnapshot.get("product price").toString(),
                                                                         documentSnapshot.get("cutted price").toString(),
                                                                         1,
-                                                                        0,
+                                                                        (long)documentSnapshot.get("offers applied"),
                                                                         0,
                                                                         true,
                                                                         (long) documentSnapshot.get("max quantity"),
@@ -315,7 +315,7 @@ public class DbQueries {
                                                                         documentSnapshot.get("product price").toString(),
                                                                         documentSnapshot.get("cutted price").toString(),
                                                                         1,
-                                                                        0,
+                                                                        (long)documentSnapshot.get("offers applied"),
                                                                         0,
                                                                         false,
                                                                         (long) documentSnapshot.get("max quantity"),
@@ -510,6 +510,7 @@ public class DbQueries {
                                                 for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                                                     if (documentSnapshot.get("type").toString().equals("discount") && lastSeenDate.before(documentSnapshot.getDate("validity"))) {
                                                         rewardsModelList.add(new RewardsModel(
+                                                                documentSnapshot.getId(),
                                                                 documentSnapshot.get("type").toString(),
                                                                 documentSnapshot.get("lower limit").toString(),
                                                                 documentSnapshot.get("upper limit").toString(),
@@ -519,6 +520,7 @@ public class DbQueries {
                                                                 (Boolean) documentSnapshot.getBoolean("already used")));
                                                     } else if (documentSnapshot.get("type").toString().equals("Flat Rs.*OFF") && lastSeenDate.before(documentSnapshot.getDate("validity"))) {
                                                         rewardsModelList.add(new RewardsModel(
+                                                                documentSnapshot.getId(),
                                                                 documentSnapshot.get("type").toString(),
                                                                 documentSnapshot.get("lower limit").toString(),
                                                                 documentSnapshot.get("upper limit").toString(),

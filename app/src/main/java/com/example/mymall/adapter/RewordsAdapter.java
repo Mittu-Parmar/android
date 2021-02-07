@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mymall.R;
+import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.RewardsModel;
 
 import java.text.SimpleDateFormat;
@@ -29,6 +30,7 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
     private TextView selectedCoupenExpiryDate;
     private TextView selectedCoupenBody;
     private TextView discountedPrice;
+    private int cartItemPosition;
 
     public RewordsAdapter(List<RewardsModel> rewardsModelList, boolean useMiniLayout) {
         this.rewardsModelList = rewardsModelList;
@@ -47,6 +49,19 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
         this.discountedPrice = discountedPrice;
     }
 
+    public RewordsAdapter(int cartItemPosition, List<RewardsModel> rewardsModelList, boolean useMiniLayout, RecyclerView coupensRecyclerView, LinearLayout selectedCoupen, String productOriginalPrice, TextView coupenTitle, TextView coupenExpiryDate, TextView coupenBody, TextView discountedPrice) {
+        this.rewardsModelList = rewardsModelList;
+        this.useMiniLayout = useMiniLayout;
+        this.coupensRecyclerView=coupensRecyclerView;
+        this.selectedCoupen=selectedCoupen;
+        this.productOriginalPrice = productOriginalPrice;
+        this.selectedCoupenTitle = coupenTitle;
+        this.selectedCoupenExpiryDate = coupenExpiryDate;
+        this.selectedCoupenBody = coupenBody;
+        this.discountedPrice = discountedPrice;
+        this.cartItemPosition=cartItemPosition;
+    }
+
     @NonNull
     @Override
     public RewordsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -60,6 +75,7 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RewordsAdapter.ViewHolder holder, int position) {
 
+        String couponId = rewardsModelList.get(position).getCouponId();
         String type = rewardsModelList.get(position).getType();
         Date date = rewardsModelList.get(position).getDate();
         String body = rewardsModelList.get(position).getBody();
@@ -68,7 +84,7 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
         String disORamt = rewardsModelList.get(position).getDisORamt();
         Boolean alreadyUsed = rewardsModelList.get(position).getAlreadyUsed();
 
-        holder.setDetails(type, date, body, lowerLimit, upperLimit, disORamt,alreadyUsed);
+        holder.setDetails(couponId, type, date, body, lowerLimit, upperLimit, disORamt,alreadyUsed);
 
     }
 
@@ -91,7 +107,7 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
             this.coupenBody = itemView.findViewById(R.id.rewords_item_coupen_body);
         }
 
-        private void setDetails(final String type, final Date validity, final String body, final String lowerLimit, final String upperLimit, final String disORamt, final Boolean alreadyUsed) {
+        private void setDetails(final String couponId, final String type, final Date validity, final String body, final String lowerLimit, final String upperLimit, final String disORamt, final Boolean alreadyUsed) {
 
             if (type.equals("discount")) {
                 this.coupenTitle.setText(type);
@@ -131,7 +147,9 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
                                 } else {
                                     discountedPrice.setText("RS." + String.valueOf(Long.valueOf(productOriginalPrice) - Long.valueOf(disORamt)) + "/-");
                                 }
+                                DbQueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(couponId);
                             } else {
+                                DbQueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(null);
                                 discountedPrice.setText("Invalid");
                                 Toast.makeText(itemView.getContext(), "Sorry ! Product does not matches the coupen terms", Toast.LENGTH_SHORT).show();
                             }

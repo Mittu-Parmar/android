@@ -23,6 +23,7 @@ public class CartItemModel {
     private boolean inStock;
     private List<String> qtyIDs;
     private boolean qtyError;
+    private String selectedCouponId;
 
     public CartItemModel(int type, String productId, String productImage, String productTitle, long freeCoupens, String productPrice, String cuttedPrice, long productQuantity, long offerceApplied, long coupenApplied, boolean inStock,long MaxQuantity, long stockQuantity) {
         this.type = type;
@@ -41,6 +42,14 @@ public class CartItemModel {
         this.qtyIDs=new ArrayList<>();
         this.qtyError=qtyError;
 
+    }
+
+    public String getSelectedCouponId() {
+        return selectedCouponId;
+    }
+
+    public void setSelectedCouponId(String selectedCouponId) {
+        this.selectedCouponId = selectedCouponId;
     }
 
     public boolean isQtyError() {

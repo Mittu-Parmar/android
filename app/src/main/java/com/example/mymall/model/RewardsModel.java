@@ -12,8 +12,10 @@ public class RewardsModel {
     private String body;
     private Date date;
     private Boolean alreadyUsed;
+    private String couponId;
 
-    public RewardsModel(String type, String lowerLimit, String upperLimit, String disORamt, String body, Date date, Boolean alreadyUsed) {
+    public RewardsModel(String couponId,String type, String lowerLimit, String upperLimit, String disORamt, String body, Date date, Boolean alreadyUsed) {
+        this.couponId=couponId;
         this.type = type;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
@@ -21,6 +23,14 @@ public class RewardsModel {
         this.body = body;
         this.date = date;
         this.alreadyUsed=alreadyUsed;
+    }
+
+    public String getCouponId() {
+        return couponId;
+    }
+
+    public void setCouponId(String couponId) {
+        this.couponId = couponId;
     }
 
     public Boolean getAlreadyUsed() {
