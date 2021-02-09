@@ -10,18 +10,18 @@ public class RewardsModel {
     private String upperLimit;
     private String disORamt;
     private String body;
-    private Date date;
+    private Date timeStamp;
     private Boolean alreadyUsed;
     private String couponId;
 
-    public RewardsModel(String couponId,String type, String lowerLimit, String upperLimit, String disORamt, String body, Date date, Boolean alreadyUsed) {
+    public RewardsModel(String couponId, String type, String lowerLimit, String upperLimit, String disORamt, String body, Date timeStamp, Boolean alreadyUsed) {
         this.couponId=couponId;
         this.type = type;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
         this.disORamt = disORamt;
         this.body = body;
-        this.date = date;
+        this.timeStamp = timeStamp;
         this.alreadyUsed=alreadyUsed;
     }
 
@@ -81,11 +81,11 @@ public class RewardsModel {
         this.body = body;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getTimeStamp() {
+        return timeStamp;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setTimeStamp(Date timeStamp) {
+        this.timeStamp = timeStamp;
     }
 }

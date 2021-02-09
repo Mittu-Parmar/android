@@ -30,7 +30,7 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
     private TextView selectedCoupenExpiryDate;
     private TextView selectedCoupenBody;
     private TextView discountedPrice;
-    private int cartItemPosition;
+    private int cartItemPosition = -1;
 
     public RewordsAdapter(List<RewardsModel> rewardsModelList, boolean useMiniLayout) {
         this.rewardsModelList = rewardsModelList;
@@ -40,8 +40,8 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
     public RewordsAdapter(List<RewardsModel> rewardsModelList, boolean useMiniLayout, RecyclerView coupensRecyclerView, LinearLayout selectedCoupen, String productOriginalPrice, TextView coupenTitle, TextView coupenExpiryDate, TextView coupenBody, TextView discountedPrice) {
         this.rewardsModelList = rewardsModelList;
         this.useMiniLayout = useMiniLayout;
-        this.coupensRecyclerView=coupensRecyclerView;
-        this.selectedCoupen=selectedCoupen;
+        this.coupensRecyclerView = coupensRecyclerView;
+        this.selectedCoupen = selectedCoupen;
         this.productOriginalPrice = productOriginalPrice;
         this.selectedCoupenTitle = coupenTitle;
         this.selectedCoupenExpiryDate = coupenExpiryDate;
@@ -52,14 +52,14 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
     public RewordsAdapter(int cartItemPosition, List<RewardsModel> rewardsModelList, boolean useMiniLayout, RecyclerView coupensRecyclerView, LinearLayout selectedCoupen, String productOriginalPrice, TextView coupenTitle, TextView coupenExpiryDate, TextView coupenBody, TextView discountedPrice) {
         this.rewardsModelList = rewardsModelList;
         this.useMiniLayout = useMiniLayout;
-        this.coupensRecyclerView=coupensRecyclerView;
-        this.selectedCoupen=selectedCoupen;
+        this.coupensRecyclerView = coupensRecyclerView;
+        this.selectedCoupen = selectedCoupen;
         this.productOriginalPrice = productOriginalPrice;
         this.selectedCoupenTitle = coupenTitle;
         this.selectedCoupenExpiryDate = coupenExpiryDate;
         this.selectedCoupenBody = coupenBody;
         this.discountedPrice = discountedPrice;
-        this.cartItemPosition=cartItemPosition;
+        this.cartItemPosition = cartItemPosition;
     }
 
     @NonNull
@@ -77,14 +77,14 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
 
         String couponId = rewardsModelList.get(position).getCouponId();
         String type = rewardsModelList.get(position).getType();
-        Date date = rewardsModelList.get(position).getDate();
+        Date date = rewardsModelList.get(position).getTimeStamp();
         String body = rewardsModelList.get(position).getBody();
         String lowerLimit = rewardsModelList.get(position).getLowerLimit();
         String upperLimit = rewardsModelList.get(position).getUpperLimit();
         String disORamt = rewardsModelList.get(position).getDisORamt();
         Boolean alreadyUsed = rewardsModelList.get(position).getAlreadyUsed();
 
-        holder.setDetails(couponId, type, date, body, lowerLimit, upperLimit, disORamt,alreadyUsed);
+        holder.setDetails(couponId, type, date, body, lowerLimit, upperLimit, disORamt, alreadyUsed);
 
     }
 
@@ -116,12 +116,12 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
             }
 
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM YYYY");
-            if (alreadyUsed){
+            if (alreadyUsed) {
                 this.coupenExpiryDate.setText("Already used");
                 this.coupenExpiryDate.setTextColor(itemView.getContext().getResources().getColor(R.color.colorPrimary));
                 this.coupenBody.setTextColor(Color.parseColor("#60ffffff"));
                 this.coupenTitle.setTextColor(Color.parseColor("#70ffffff"));
-            }else {
+            } else {
                 this.coupenExpiryDate.setText(" Till " + simpleDateFormat.format(validity));
                 this.coupenExpiryDate.setTextColor(itemView.getContext().getResources().getColor(R.color.coupenPurpal));
                 this.coupenBody.setTextColor(Color.parseColor("#ffffff"));
@@ -147,9 +147,13 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
                                 } else {
                                     discountedPrice.setText("RS." + String.valueOf(Long.valueOf(productOriginalPrice) - Long.valueOf(disORamt)) + "/-");
                                 }
-                                DbQueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(couponId);
+                                if (cartItemPosition != -1) {
+                                    DbQueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(couponId);
+                                }
                             } else {
-                                DbQueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(null);
+                                if (cartItemPosition != -1) {
+                                    DbQueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(null);
+                                }
                                 discountedPrice.setText("Invalid");
                                 Toast.makeText(itemView.getContext(), "Sorry ! Product does not matches the coupen terms", Toast.LENGTH_SHORT).show();
                             }

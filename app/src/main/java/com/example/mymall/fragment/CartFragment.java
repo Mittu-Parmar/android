@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import com.example.mymall.adapter.CartAdapter;
 import com.example.mymall.adapter.WishlistAdapter;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.CartItemModel;
+import com.example.mymall.model.RewardsModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,6 +117,20 @@ public class CartFragment extends Fragment {
                 parent.setVisibility(View.VISIBLE);
             }
             loadingDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        for (CartItemModel cartItemModel: DbQueries.cartItemModelList) {
+            if(!TextUtils.isEmpty(cartItemModel.getSelectedCouponId())){
+                for (RewardsModel rewardsModel : DbQueries.rewardsModelList) {
+                    if (rewardsModel.getCouponId().equals(cartItemModel.getSelectedCouponId())) {
+                        rewardsModel.setAlreadyUsed(false);
+                    }
+                }
+            }
         }
     }
 }
