@@ -130,6 +130,10 @@ public class CartFragment extends Fragment {
                         rewardsModel.setAlreadyUsed(false);
                     }
                 }
+                cartItemModel.setSelectedCouponId(null);
+                if (RewardsFragment.rewordsAdapter!=null) {
+                    RewardsFragment.rewordsAdapter.notifyDataSetChanged();
+                }
             }
         }
     }

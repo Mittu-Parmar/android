@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mymall.R;
 import com.example.mymall.db_handler.DbQueries;
+import com.example.mymall.model.CartItemModel;
 import com.example.mymall.model.RewardsModel;
 
 import java.text.SimpleDateFormat;
@@ -31,6 +32,7 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
     private TextView selectedCoupenBody;
     private TextView discountedPrice;
     private int cartItemPosition = -1;
+    private List <CartItemModel> cartItemModelList;
 
     public RewordsAdapter(List<RewardsModel> rewardsModelList, boolean useMiniLayout) {
         this.rewardsModelList = rewardsModelList;
@@ -49,7 +51,7 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
         this.discountedPrice = discountedPrice;
     }
 
-    public RewordsAdapter(int cartItemPosition, List<RewardsModel> rewardsModelList, boolean useMiniLayout, RecyclerView coupensRecyclerView, LinearLayout selectedCoupen, String productOriginalPrice, TextView coupenTitle, TextView coupenExpiryDate, TextView coupenBody, TextView discountedPrice) {
+    public RewordsAdapter(int cartItemPosition, List<RewardsModel> rewardsModelList, boolean useMiniLayout, RecyclerView coupensRecyclerView, LinearLayout selectedCoupen, String productOriginalPrice, TextView coupenTitle, TextView coupenExpiryDate, TextView coupenBody, TextView discountedPrice, List<CartItemModel> cartItemModelList) {
         this.rewardsModelList = rewardsModelList;
         this.useMiniLayout = useMiniLayout;
         this.coupensRecyclerView = coupensRecyclerView;
@@ -60,6 +62,7 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
         this.selectedCoupenBody = coupenBody;
         this.discountedPrice = discountedPrice;
         this.cartItemPosition = cartItemPosition;
+        this.cartItemModelList=cartItemModelList;
     }
 
     @NonNull
@@ -148,11 +151,11 @@ public class RewordsAdapter extends RecyclerView.Adapter<RewordsAdapter.ViewHold
                                     discountedPrice.setText("RS." + String.valueOf(Long.valueOf(productOriginalPrice) - Long.valueOf(disORamt)) + "/-");
                                 }
                                 if (cartItemPosition != -1) {
-                                    DbQueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(couponId);
+                                    cartItemModelList.get(cartItemPosition).setSelectedCouponId(couponId);
                                 }
                             } else {
                                 if (cartItemPosition != -1) {
-                                    DbQueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(null);
+                                    cartItemModelList.get(cartItemPosition).setSelectedCouponId(null);
                                 }
                                 discountedPrice.setText("Invalid");
                                 Toast.makeText(itemView.getContext(), "Sorry ! Product does not matches the coupen terms", Toast.LENGTH_SHORT).show();

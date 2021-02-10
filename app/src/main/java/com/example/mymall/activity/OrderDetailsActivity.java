@@ -18,9 +18,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Order details");
+//        getActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Order details");
 
     }
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import com.example.mymall.activity.DeliveryActivity;
 import com.example.mymall.activity.ProductDetailsActivity;
 import com.example.mymall.adapter.CategoryAdapter;
 import com.example.mymall.adapter.HomeAdapter;
+import com.example.mymall.adapter.OrderAdapter;
 import com.example.mymall.fragment.CartFragment;
 import com.example.mymall.fragment.HomeFragment;
 import com.example.mymall.fragment.RewardsFragment;
@@ -27,13 +29,13 @@ import com.example.mymall.model.AddressesModel;
 import com.example.mymall.model.CartItemModel;
 import com.example.mymall.model.CategoryModel;
 import com.example.mymall.model.HomeModel;
+import com.example.mymall.model.OrderItemModel;
 import com.example.mymall.model.ProductItemModel;
 import com.example.mymall.model.RewardsModel;
 import com.example.mymall.model.SliderModel;
 import com.example.mymall.model.WishListModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -72,6 +74,8 @@ public class DbQueries {
     public static int selectedAddress = -1;
 
     public static List<RewardsModel> rewardsModelList = new ArrayList<>();
+
+    public static List<OrderItemModel> orderItemModelList = new ArrayList<>();
 
     public static void loadCategories(final RecyclerView categoryRecyclerView, final Context context) {
 
@@ -299,7 +303,7 @@ public class DbQueries {
                                                                         documentSnapshot.get("product price").toString(),
                                                                         documentSnapshot.get("cutted price").toString(),
                                                                         1,
-                                                                        (long)documentSnapshot.get("offers applied"),
+                                                                        (long) documentSnapshot.get("offers applied"),
                                                                         0,
                                                                         true,
                                                                         (long) documentSnapshot.get("max quantity"),
@@ -315,7 +319,7 @@ public class DbQueries {
                                                                         documentSnapshot.get("product price").toString(),
                                                                         documentSnapshot.get("cutted price").toString(),
                                                                         1,
-                                                                        (long)documentSnapshot.get("offers applied"),
+                                                                        (long) documentSnapshot.get("offers applied"),
                                                                         0,
                                                                         false,
                                                                         (long) documentSnapshot.get("max quantity"),
@@ -545,6 +549,60 @@ public class DbQueries {
                         }
                     }
                 });
+    }
+
+    public static void loadOrders(final Context context, final OrderAdapter orderAdapter) {
+
+        orderItemModelList.clear();
+        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+
+                    for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
+                        firebaseFirestore.collection("orders").document(documentSnapshot.getString("order id")).collection("order items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (DocumentSnapshot orderItems : task.getResult().getDocuments()) {
+
+                                        OrderItemModel orderItemModel = new OrderItemModel(
+                                                orderItems.getString("product id"),
+                                                orderItems.getString("order status"),
+                                                orderItems.getString("address"),
+                                                orderItems.getString("coupon id"),
+                                                orderItems.getString("cutted price"),
+                                                orderItems.getDate("order date"),
+                                                orderItems.getDate("packed date"),
+                                                orderItems.getDate("shipped date"),
+                                                orderItems.getDate("delivered date"),
+                                                orderItems.getDate("canceled date"),
+                                                orderItems.getString("discounted price"),
+                                                orderItems.getLong("free coupons"),
+                                                orderItems.getString("full name"),
+                                                orderItems.getString("order id"),
+                                                orderItems.getString("payment method"),
+                                                orderItems.getString("pin code"),
+                                                orderItems.getString("product price"),
+                                                orderItems.getLong("product quantity"),
+                                                orderItems.getString("user id"),
+                                                orderItems.getString("product image"),
+                                                orderItems.getString("product title"));
+                                        orderItemModelList.add(orderItemModel);
+                                    }
+                                    orderAdapter.notifyDataSetChanged();
+                                } else {
+                                    Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                    }
+                } else {
+                    Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     public static void clearData() {

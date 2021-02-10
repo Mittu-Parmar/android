@@ -95,6 +95,7 @@
             android:layout_weight="1"
             android:background="@color/colorPrimary"
             android:text="Buy Now"
+            android:visibility="gone"
             android:textColor="@color/colorAccent"
             android:textSize="16sp"
             android:textStyle="bold" />
