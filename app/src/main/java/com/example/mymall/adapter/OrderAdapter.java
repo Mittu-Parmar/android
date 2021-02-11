@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +20,10 @@ import com.example.mymall.R;
 import com.example.mymall.activity.OrderDetailsActivity;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.OrderItemModel;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,7 +31,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> {
 
@@ -74,7 +80,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
         }
 
-        holder.setDeta(Image, title, orderStatus, date, rating, productId,position);
+        holder.setDeta(Image, title, orderStatus, date, rating, productId, position);
     }
 
     @Override
@@ -111,19 +117,20 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 this.productDeliveryIndicator.setImageTintList(ColorStateList.valueOf(itemView.getContext().getResources().getColor(R.color.successGreen)));
             }
 
-            this.productDeliveryStatus.setText(orderStatus +" "+ (date));
+            this.productDeliveryStatus.setText(orderStatus + " " + (date));
 
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent orderDetailsIntent = new Intent(itemView.getContext(), OrderDetailsActivity.class);
-                    orderDetailsIntent.putExtra("position",position);
+                    orderDetailsIntent.putExtra("position", position);
                     itemView.getContext().startActivity(orderDetailsIntent);
                 }
             });
 
 
+//            rating layout
             setRaring(rating);
             for (int x = 0; x < rateNowContainer.getChildCount(); x++) {
                 final int starPosition = x;
@@ -140,31 +147,58 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                                 DocumentSnapshot documentSnapshot = transaction.get(documentReference);
 
                                 if (rating != 0) {
-                                    Long increase = documentSnapshot.getLong(starPosition + " star") + 1;
-                                    Long decrease = documentSnapshot.getLong(rating + " star") - 1;
-                                    transaction.update(documentReference,starPosition + " star",increase);
-                                    transaction.update(documentReference,rating + " star",decrease);
+                                    Long increase = documentSnapshot.getLong(starPosition + 1 + " star") + 1;
+                                    Long decrease = documentSnapshot.getLong(rating + 1 + " star") - 1;
+                                    transaction.update(documentReference, starPosition + 1 + " star", increase);
+                                    transaction.update(documentReference, rating + 1 + " star", decrease);
                                 } else {
-                                    Long increase = documentSnapshot.getLong(starPosition + " star") + 1;
-                                    transaction.update(documentReference,starPosition + " star",increase);
+                                    Long increase = documentSnapshot.getLong(starPosition + 1 + " star") + 1;
+                                    transaction.update(documentReference, starPosition + 1 + " star", increase);
                                 }
                                 return null;
                             }
                         }).addOnSuccessListener(new OnSuccessListener<Object>() {
                             @Override
                             public void onSuccess(Object o) {
-                                DbQueries.orderItemModelList.get(position).setRating(starPosition);
-                                if (DbQueries.myRatedIds.contains(productId)){
-                                    DbQueries.myRating.set(DbQueries.myRatedIds.indexOf(productId),Long.parseLong(String.valueOf(starPosition)));
-                                }else {
-                                    DbQueries.myRatedIds.add(productId);
-                                    DbQueries.myRating.add(Long.parseLong(String.valueOf(starPosition)));
+
+
+                                Map<String, Object> myRating = new HashMap<>();
+                                if (DbQueries.myRatedIds.contains(productId)) {
+                                    myRating.put("rating " + DbQueries.myRatedIds.indexOf(productId), (long) starPosition + 1);
+                                } else {
+                                    myRating.put("list size", (long) DbQueries.myRatedIds.size() + 1);
+                                    myRating.put("product id " + DbQueries.myRatedIds.size(), productId);
+                                    myRating.put("rating " + DbQueries.myRatedIds.size(), (long) starPosition + 1);
                                 }
+                                FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my ratings")
+                                        .update(myRating).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+
+                                            DbQueries.orderItemModelList.get(position).setRating(starPosition);
+                                            if (DbQueries.myRatedIds.contains(productId)) {
+                                                DbQueries.myRating.set(DbQueries.myRatedIds.indexOf(productId), Long.parseLong(String.valueOf(starPosition + 1)));
+                                            } else {
+                                                DbQueries.myRatedIds.add(productId);
+                                                DbQueries.myRating.add(Long.parseLong(String.valueOf(starPosition + 1)));
+                                            }
+
+                                        } else {
+
+                                            Toast.makeText(itemView.getContext(), ""+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+
+
+
                             }
                         });
                     }
                 });
             }
+//            rating layout
         }
 
         private void setRaring(int starPosition) {

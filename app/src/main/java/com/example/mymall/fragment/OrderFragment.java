@@ -38,10 +38,14 @@ public class OrderFragment extends Fragment {
         orderAdapter = new OrderAdapter(DbQueries.orderItemModelList);
         ordersRecyclerView.setAdapter(orderAdapter);
 
-        if (DbQueries.orderItemModelList.size() == 0) {
-            DbQueries.loadOrders(getContext(), orderAdapter);
-        }
+        DbQueries.loadOrders(getContext(), orderAdapter);
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        orderAdapter.notifyDataSetChanged();
     }
 }

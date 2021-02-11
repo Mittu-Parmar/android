@@ -1,5 +1,7 @@
 package com.example.mymall.activity;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -9,13 +11,27 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.mymall.R;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.OrderItemModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class OrderDetailsActivity extends AppCompatActivity {
 
@@ -44,6 +60,15 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TextView packedBody;
     private TextView shippedBody;
     private TextView deliveredBody;
+    private LinearLayout rateNowContainer;
+
+    private int rating;
+
+    private TextView fullName;
+    private TextView address;
+    private TextView pinCode;
+
+    private TextView totalItems, totalItemsPrice, deliveryPrice, totalAmount, savedAmount;
 
 
     @Override
@@ -58,7 +83,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         position = getIntent().getIntExtra("position", -1);
-        OrderItemModel orderItemModel = DbQueries.orderItemModelList.get(position);
+        final OrderItemModel orderItemModel = DbQueries.orderItemModelList.get(position);
 
         title = findViewById(R.id.order_details_product_title);
         quantity = findViewById(R.id.order_details_product_qty);
@@ -89,14 +114,25 @@ public class OrderDetailsActivity extends AppCompatActivity {
         shippedBody = findViewById(R.id.shipping_body);
         deliveredBody = findViewById(R.id.delivered_body);
 
+        fullName = findViewById(R.id.full_name);
+        address = findViewById(R.id.address);
+        pinCode = findViewById(R.id.pin_code);
+
+        rateNowContainer = findViewById(R.id.order_details_rate_now_container);
+
+        totalItems = findViewById(R.id.total_items);
+        totalItemsPrice = findViewById(R.id.total_items_price);
+        deliveryPrice = findViewById(R.id.delivery_price);
+        totalAmount = findViewById(R.id.total_price);
+        savedAmount = findViewById(R.id.saved_amount);
 
         title.setText(orderItemModel.getProductTitle());
-        if (orderItemModel.getDiscountedPrice() != null) {
-            price.setText(orderItemModel.getDiscountedPrice());
+        if (!orderItemModel.getDiscountedPrice().equals("")) {
+            price.setText("Rs." + orderItemModel.getDiscountedPrice() + "/-");
         } else {
-            price.setText(orderItemModel.getProductTitle());
+            price.setText("Rs." + orderItemModel.getProductPrice() + "/-");
         }
-        quantity.setText(String.valueOf(orderItemModel.getProductQuantity()));
+        quantity.setText("Qty " + String.valueOf(orderItemModel.getProductQuantity()));
         Glide.with(this).load(orderItemModel.getProductImage()).into(productImage);
 
         switch (orderItemModel.getOrderStatus()) {
@@ -262,6 +298,111 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
                 break;
         }
+
+
+//            rating layout
+        rating = orderItemModel.getRating();
+        setRaring(rating);
+        for (int x = 0; x < rateNowContainer.getChildCount(); x++) {
+            final int starPosition = x;
+            rateNowContainer.getChildAt(x).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setRaring(starPosition);
+                    final DocumentReference documentReference = FirebaseFirestore.getInstance().collection("products").document(orderItemModel.getProductId());
+                    FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Object>() {
+                        @Nullable
+                        @Override
+                        public Object apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                            DocumentSnapshot documentSnapshot = transaction.get(documentReference);
+
+                            if (rating != 0) {
+                                Long increase = documentSnapshot.getLong(starPosition + 1 + " star") + 1;
+                                Long decrease = documentSnapshot.getLong(rating + 1 + " star") - 1;
+                                transaction.update(documentReference, starPosition + 1 + " star", increase);
+                                transaction.update(documentReference, rating + 1 + " star", decrease);
+                            } else {
+                                Long increase = documentSnapshot.getLong(starPosition + 1 + " star") + 1;
+                                transaction.update(documentReference, starPosition + 1 + " star", increase);
+                            }
+                            return null;
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<Object>() {
+                        @Override
+                        public void onSuccess(Object o) {
+                            Map<String, Object> myRating = new HashMap<>();
+                            if (DbQueries.myRatedIds.contains(orderItemModel.getProductId())) {
+                                myRating.put("rating " + DbQueries.myRatedIds.indexOf(orderItemModel.getProductId()), (long) starPosition + 1);
+                            } else {
+                                myRating.put("list size", (long) DbQueries.myRatedIds.size() + 1);
+                                myRating.put("product id " + DbQueries.myRatedIds.size(), orderItemModel.getProductId());
+                                myRating.put("rating " + DbQueries.myRatedIds.size(), (long) starPosition + 1);
+                            }
+                            FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my ratings")
+                                    .update(myRating).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+
+                                        DbQueries.orderItemModelList.get(position).setRating(starPosition);
+                                        if (DbQueries.myRatedIds.contains(orderItemModel.getProductId())) {
+                                            DbQueries.myRating.set(DbQueries.myRatedIds.indexOf(orderItemModel.getProductId()), Long.parseLong(String.valueOf(starPosition + 1)));
+                                        } else {
+                                            DbQueries.myRatedIds.add(orderItemModel.getProductId());
+                                            DbQueries.myRating.add(Long.parseLong(String.valueOf(starPosition + 1)));
+                                        }
+
+                                    } else {
+
+                                        Toast.makeText(OrderDetailsActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+                        }
+                    });
+                }
+            });
+        }
+//            rating layout
+
+        fullName.setText(orderItemModel.getFullName());
+        address.setText(orderItemModel.getAddress());
+        pinCode.setText(orderItemModel.getPinCode());
+
+        totalItems.setText("Price(" + orderItemModel.getProductQuantity() + ") items");
+
+        Long totalItemsPriceValue;
+
+        if (orderItemModel.getDiscountedPrice().equals("")) {
+            totalItemsPriceValue = orderItemModel.getProductQuantity() * Long.valueOf(orderItemModel.getProductPrice());
+            totalItemsPrice.setText("Rs." + totalItemsPriceValue + "/-");
+        } else {
+            totalItemsPriceValue = orderItemModel.getProductQuantity() * Long.valueOf(orderItemModel.getDiscountedPrice());
+            totalItemsPrice.setText("Rs." + totalItemsPriceValue + "/-");
+        }
+        if (orderItemModel.getDeliveryPrice().equals("FREE")) {
+            deliveryPrice.setText(orderItemModel.getDeliveryPrice());
+            totalAmount.setText(totalItemsPrice.getText());
+        } else {
+            deliveryPrice.setText("Rs." + orderItemModel.getDeliveryPrice() + "/-");
+            totalAmount.setText("Rs." + (totalItemsPriceValue + Long.valueOf(orderItemModel.getDeliveryPrice())) + "/-");
+        }
+
+        if (!orderItemModel.getCuttedPrice().equals("")) {
+            if (!orderItemModel.getDiscountedPrice().equals("")) {
+                savedAmount.setText("You saved Rs." + Long.valueOf(orderItemModel.getProductQuantity()) * (Long.valueOf(orderItemModel.getCuttedPrice()) - Long.valueOf(orderItemModel.getDiscountedPrice())) + "/- on this order");
+            } else {
+                savedAmount.setText("You saved Rs." + Long.valueOf(orderItemModel.getProductQuantity()) * (Long.valueOf(orderItemModel.getCuttedPrice()) - Long.valueOf(orderItemModel.getProductPrice())) + "/- on this order");
+            }
+        } else {
+            if (orderItemModel.getDiscountedPrice().equals("")) {
+                savedAmount.setText("You saved Rs." + Long.valueOf(orderItemModel.getProductQuantity()) * (Long.valueOf(orderItemModel.getProductPrice()) - Long.valueOf(orderItemModel.getDiscountedPrice())) + " on this order");
+            } else {
+                savedAmount.setText("You saved Rs.0/- on this order");
+            }
+        }
     }
 
     @Override
@@ -273,5 +414,16 @@ public class OrderDetailsActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setRaring(int starPosition) {
+        for (int x = 0; x < rateNowContainer.getChildCount(); x++) {
+            ImageView starBtn = (ImageView) rateNowContainer.getChildAt(x);
+            if (x <= starPosition) {
+                starBtn.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFC107")));
+            } else {
+                starBtn.setImageTintList(ColorStateList.valueOf(Color.parseColor("#C5C5C5")));
+            }
+        }
     }
 }

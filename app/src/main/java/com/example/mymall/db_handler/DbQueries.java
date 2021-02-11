@@ -600,7 +600,8 @@ public class DbQueries {
                                                 orderItems.getLong("product quantity"),
                                                 orderItems.getString("user id"),
                                                 orderItems.getString("product image"),
-                                                orderItems.getString("product title"));
+                                                orderItems.getString("product title"),
+                                                orderItems.getString("delivery price"));
                                         orderItemModelList.add(orderItemModel);
                                     }
                                     loadRatingList(context);
@@ -631,6 +632,7 @@ public class DbQueries {
         myRating.clear();
         addressModelList.clear();
         rewardsModelList.clear();
+        orderItemModelList.clear();
     }
 }
 

@@ -11,7 +11,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/rate_now_container"
+        android:id="@+id/order_details_rate_now_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
