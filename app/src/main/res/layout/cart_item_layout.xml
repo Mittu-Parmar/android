@@ -167,4 +167,14 @@
 
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/cod_indicator"
+        android:layout_width="60dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/cart_free_coupan"
+        app:layout_constraintStart_toEndOf="@+id/cart_free_coupan"
+        app:layout_constraintTop_toTopOf="@+id/cart_free_coupan"
+        app:srcCompat="@drawable/cod_indecator" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

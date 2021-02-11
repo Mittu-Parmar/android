@@ -1,5 +1,6 @@
 package com.example.mymall.adapter;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -21,6 +22,7 @@ import com.example.mymall.activity.OrderDetailsActivity;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.OrderItemModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,9 +41,11 @@ import java.util.Map;
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> {
 
     List<OrderItemModel> orderItemModelList;
+    private Dialog loadingDialog;
 
-    public OrderAdapter(List<OrderItemModel> orderItemModelList) {
+    public OrderAdapter(List<OrderItemModel> orderItemModelList, Dialog loadingDialog) {
         this.orderItemModelList = orderItemModelList;
+        this.loadingDialog=loadingDialog;
     }
 
     @NonNull
@@ -96,6 +101,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         private TextView productDeliveryStatus;
         private LinearLayout rateNowContainer;
         private int rating;
+        private SimpleDateFormat simpleDateFormat;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -117,7 +123,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 this.productDeliveryIndicator.setImageTintList(ColorStateList.valueOf(itemView.getContext().getResources().getColor(R.color.successGreen)));
             }
 
-            this.productDeliveryStatus.setText(orderStatus + " " + (date));
+            simpleDateFormat=new SimpleDateFormat("EEE, dd MMM YYYY hh:mm aa");
+
+            this.productDeliveryStatus.setText(orderStatus + " " + simpleDateFormat.format(date));
 
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -137,6 +145,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 rateNowContainer.getChildAt(x).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        loadingDialog.show();
                         setRaring(starPosition);
                         final DocumentReference documentReference = FirebaseFirestore.getInstance().collection("products").document(productId);
                         FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Object>() {
@@ -160,7 +169,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                         }).addOnSuccessListener(new OnSuccessListener<Object>() {
                             @Override
                             public void onSuccess(Object o) {
-
 
                                 Map<String, Object> myRating = new HashMap<>();
                                 if (DbQueries.myRatedIds.contains(productId)) {
@@ -188,11 +196,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
                                             Toast.makeText(itemView.getContext(), ""+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                         }
+                                        loadingDialog.dismiss();
                                     }
                                 });
 
-
-
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                loadingDialog.dismiss();
                             }
                         });
                     }

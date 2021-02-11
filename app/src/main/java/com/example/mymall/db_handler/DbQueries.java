@@ -308,7 +308,8 @@ public class DbQueries {
                                                                         0,
                                                                         true,
                                                                         (long) documentSnapshot.get("max quantity"),
-                                                                        (long) documentSnapshot.get("stock quantity")));
+                                                                        (long) documentSnapshot.get("stock quantity"),
+                                                                        documentSnapshot.getBoolean("cod")));
 
                                                             } else {
                                                                 cartItemModelList.add(index, new CartItemModel(
@@ -324,7 +325,8 @@ public class DbQueries {
                                                                         0,
                                                                         false,
                                                                         (long) documentSnapshot.get("max quantity"),
-                                                                        (long) documentSnapshot.get("stock quantity")));
+                                                                        (long) documentSnapshot.get("stock quantity"),
+                                                                        documentSnapshot.getBoolean("cod")));
                                                             }
                                                             if (cartList.size() == 1) {
                                                                 cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
@@ -564,7 +566,7 @@ public class DbQueries {
                 });
     }
 
-    public static void loadOrders(final Context context, final OrderAdapter orderAdapter) {
+    public static void loadOrders(final Context context, final OrderAdapter orderAdapter, final Dialog loadingDialog) {
 
         orderItemModelList.clear();
         firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -609,6 +611,7 @@ public class DbQueries {
                                 } else {
                                     Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }
+                                loadingDialog.dismiss();
                             }
                         });
 

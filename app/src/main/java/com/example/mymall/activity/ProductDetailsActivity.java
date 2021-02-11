@@ -392,7 +392,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                                                         0,
                                                                                         inStock,
                                                                                         (long) documentSnapshot.get("max quantity"),
-                                                                                        (long) documentSnapshot.get("stock quantity")));
+                                                                                        (long) documentSnapshot.get("stock quantity"),
+                                                                                        documentSnapshot.getBoolean("cod")));
                                                                             }
 
                                                                             ALREADY_ADDED_TO_CART = true;
@@ -644,7 +645,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             0,
                             inStock,
                             (long) documentSnapshot.get("max quantity"),
-                            (long) documentSnapshot.get("stock quantity")));
+                            (long) documentSnapshot.get("stock quantity"),
+                            documentSnapshot.getBoolean("cod")));
                     DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
 
                     if (DbQueries.addressModelList.size() == 0) {

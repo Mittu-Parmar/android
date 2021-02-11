@@ -55,6 +55,8 @@ public class DeliveryActivity extends AppCompatActivity {
     private TextView pincode;
     public static Dialog loadingDialog;
     private Dialog paymentMethodDialog;
+    private TextView codTitle;
+    private View divider;
     private ImageView paytmButton;
     private ImageView codButton;
     String paymentMethod = "PAYTM";
@@ -97,6 +99,8 @@ public class DeliveryActivity extends AppCompatActivity {
         paymentMethodDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         paytmButton = paymentMethodDialog.findViewById(R.id.paytm);
         codButton = paymentMethodDialog.findViewById(R.id.cod_button);
+        codTitle = paymentMethodDialog.findViewById(R.id.cod_button_title);
+        divider = paymentMethodDialog.findViewById(R.id.cod_paytm_divider);
         id = UUID.randomUUID().toString().substring(0, 28);
         firebaseFirestore = FirebaseFirestore.getInstance();
         getQtyIDs = true;
@@ -138,6 +142,21 @@ public class DeliveryActivity extends AppCompatActivity {
                 for (CartItemModel cartItemModel : cartItemModelList) {
                     if (cartItemModel.isQtyError()) {
                         allProductAvailable = false;
+                        break;
+                    }
+                    if (cartItemModel.getType()==CartItemModel.CART_ITEM) {
+                        if (!cartItemModel.isCod()) {
+                            codButton.setEnabled(false);
+                            codButton.setAlpha(0.5f);
+                            codTitle.setAlpha(0.5f);
+                            divider.setVisibility(View.GONE);
+                            break;
+                        } else {
+                            codButton.setEnabled(false);
+                            codButton.setAlpha(1f);
+                            codTitle.setAlpha(1f);
+                            divider.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
                 if (allProductAvailable) {
@@ -383,24 +402,24 @@ public class DeliveryActivity extends AppCompatActivity {
                 Map<String, Object> orderDetails = new HashMap<>();
                 orderDetails.put("order id", id);
                 orderDetails.put("product id", cartItemModel.getProductId());
-                orderDetails.put("product image",cartItemModel.getProductImage());
-                orderDetails.put("product title",cartItemModel.getProductTitle());
+                orderDetails.put("product image", cartItemModel.getProductImage());
+                orderDetails.put("product title", cartItemModel.getProductTitle());
                 orderDetails.put("user id", userID);
                 orderDetails.put("product quantity", cartItemModel.getProductQuantity());
                 if (cartItemModel.getCuttedPrice() != null) {
                     orderDetails.put("cutted price", cartItemModel.getCuttedPrice());
-                }else {
+                } else {
                     orderDetails.put("cutted price", "");
                 }
                 orderDetails.put("product price", cartItemModel.getProductPrice());
                 if (cartItemModel.getSelectedCouponId() != null) {
                     orderDetails.put("coupon id", cartItemModel.getSelectedCouponId());
-                }else {
+                } else {
                     orderDetails.put("coupon id", "");
                 }
                 if (cartItemModel.getDiscountedPrice() != null) {
                     orderDetails.put("discounted price", cartItemModel.getDiscountedPrice());
-                }else {
+                } else {
                     orderDetails.put("discounted price", "");
                 }
                 orderDetails.put("ordered date", FieldValue.serverTimestamp());
@@ -414,7 +433,7 @@ public class DeliveryActivity extends AppCompatActivity {
                 orderDetails.put("full name", fullName.getText());
                 orderDetails.put("pin code", pincode.getText());
                 orderDetails.put("free coupons", cartItemModel.getFreeCoupens());
-                orderDetails.put("delivery rice",cartItemModel.getDeliveryPrice());
+                orderDetails.put("delivery rice", cartItemModel.getDeliveryPrice());
 
                 firebaseFirestore.collection("orders").document(String.valueOf(id)).collection("order items").document(cartItemModel.getProductId()).set(orderDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -464,20 +483,20 @@ public class DeliveryActivity extends AppCompatActivity {
         firebaseFirestore.collection("orders").document(id).update(updateStatus).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    Map<String, Object> userOrder=new HashMap<>();
-                    userOrder.put("order id",id);
+                if (task.isSuccessful()) {
+                    Map<String, Object> userOrder = new HashMap<>();
+                    userOrder.put("order id", id);
                     firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").document(id).set(userOrder).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 showConfirmationLayout();
-                            }else {
+                            } else {
                                 Toast.makeText(DeliveryActivity.this, "Failed of update user OrderList", Toast.LENGTH_LONG).show();
                             }
                         }
                     });
-                }else {
+                } else {
                     Toast.makeText(DeliveryActivity.this, "Order Cancelled", Toast.LENGTH_LONG).show();
                 }
             }
