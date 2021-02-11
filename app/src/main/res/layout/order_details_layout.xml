@@ -105,7 +105,7 @@
         android:layout_marginStart="6dp"
         android:layout_marginTop="4dp"
         android:progress="100"
-        android:progressTint="#BDBDBD"
+        android:progressTint="@color/successGreen"
         android:rotation="90"
         android:transformPivotX="0dp"
         app:layout_constraintStart_toStartOf="@+id/shipping_indicator"
@@ -130,7 +130,7 @@
         android:layout_marginStart="6dp"
         android:layout_marginTop="4dp"
         android:progress="100"
-        android:progressTint="#BDBDBD"
+        android:progressTint="@color/successGreen"
         android:rotation="90"
         android:transformPivotX="0dp"
         app:layout_constraintStart_toStartOf="@+id/packed_indicator"
@@ -216,14 +216,14 @@
         android:layout_marginStart="6dp"
         android:layout_marginTop="4dp"
         android:progress="100"
-        android:progressTint="#BDBDBD"
+        android:progressTint="@color/successGreen"
         android:rotation="90"
         android:transformPivotX="0dp"
         app:layout_constraintStart_toStartOf="@+id/orderd_indicator"
         app:layout_constraintTop_toTopOf="@+id/orderd_indicator" />
 
     <TextView
-        android:id="@+id/textView23"
+        android:id="@+id/ordered_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -235,7 +235,7 @@
         app:layout_constraintTop_toTopOf="@+id/orderd_indicator" />
 
     <TextView
-        android:id="@+id/textView24"
+        android:id="@+id/packed_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -247,7 +247,7 @@
         app:layout_constraintTop_toTopOf="@+id/packed_indicator" />
 
     <TextView
-        android:id="@+id/textView26"
+        android:id="@+id/shipping_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -259,11 +259,11 @@
         app:layout_constraintTop_toTopOf="@+id/shipping_indicator" />
 
     <TextView
-        android:id="@+id/textView27"
+        android:id="@+id/delivered_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Deleverd"
+        android:text="Delivered"
         android:textColor="#000000"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/deleverd_indicator"
@@ -271,13 +271,14 @@
         app:layout_constraintTop_toTopOf="@+id/deleverd_indicator" />
 
     <TextView
+        android:id="@+id/ordered_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="Mon 12th Dec 2020  - 7:00 A.M."
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView23"
-        app:layout_constraintStart_toEndOf="@+id/textView23" />
+        app:layout_constraintBottom_toBottomOf="@+id/ordered_title"
+        app:layout_constraintStart_toEndOf="@+id/ordered_title" />
 
     <TextView
         android:id="@+id/packed_date"
@@ -286,8 +287,8 @@
         android:layout_marginStart="8dp"
         android:text="Mon 12th Dec 2020  - 7:00 A.M."
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView24"
-        app:layout_constraintStart_toEndOf="@+id/textView24" />
+        app:layout_constraintBottom_toBottomOf="@+id/packed_title"
+        app:layout_constraintStart_toEndOf="@+id/packed_title" />
 
     <TextView
         android:id="@+id/shipping_date"
@@ -296,8 +297,8 @@
         android:layout_marginStart="8dp"
         android:text="Mon 12th Dec 2020  - 7:00 A.M."
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView26"
-        app:layout_constraintStart_toEndOf="@+id/textView26" />
+        app:layout_constraintBottom_toBottomOf="@+id/shipping_title"
+        app:layout_constraintStart_toEndOf="@+id/shipping_title" />
 
     <TextView
         android:id="@+id/deleverd_date"
@@ -306,58 +307,58 @@
         android:layout_marginStart="8dp"
         android:text="Mon 12th Dec 2020  - 7:00 A.M."
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView27"
-        app:layout_constraintStart_toEndOf="@+id/textView27" />
+        app:layout_constraintBottom_toBottomOf="@+id/delivered_title"
+        app:layout_constraintStart_toEndOf="@+id/delivered_title" />
 
     <TextView
-        android:id="@+id/textView32"
+        android:id="@+id/order_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Your oder has been placed"
         android:textColor="#000000"
         android:textSize="10sp"
-        app:layout_constraintStart_toStartOf="@+id/textView23"
-        app:layout_constraintTop_toBottomOf="@+id/textView23" />
+        app:layout_constraintStart_toStartOf="@+id/ordered_title"
+        app:layout_constraintTop_toBottomOf="@+id/ordered_title" />
 
     <TextView
-        android:id="@+id/textView33"
+        android:id="@+id/packed_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Your oder has been packed"
         android:textColor="#000000"
         android:textSize="10sp"
-        app:layout_constraintStart_toStartOf="@+id/textView24"
-        app:layout_constraintTop_toBottomOf="@+id/textView24" />
+        app:layout_constraintStart_toStartOf="@+id/packed_title"
+        app:layout_constraintTop_toBottomOf="@+id/packed_title" />
 
     <TextView
-        android:id="@+id/textView34"
+        android:id="@+id/shipping_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Your oder has been shipped"
         android:textColor="#000000"
         android:textSize="10sp"
-        app:layout_constraintStart_toStartOf="@+id/textView26"
-        app:layout_constraintTop_toBottomOf="@+id/textView26" />
+        app:layout_constraintStart_toStartOf="@+id/shipping_title"
+        app:layout_constraintTop_toBottomOf="@+id/shipping_title" />
 
     <TextView
-        android:id="@+id/textView35"
+        android:id="@+id/delivered_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Your oder has been delevered"
         android:textColor="#000000"
         android:textSize="10sp"
-        app:layout_constraintStart_toStartOf="@+id/textView27"
-        app:layout_constraintTop_toBottomOf="@+id/textView27" />
+        app:layout_constraintStart_toStartOf="@+id/delivered_title"
+        app:layout_constraintTop_toBottomOf="@+id/delivered_title" />
 
     <View
         android:id="@+id/divider11"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView35" />
+        app:layout_constraintTop_toBottomOf="@+id/delivered_body" />
 
     <TextView
         android:id="@+id/textView36"

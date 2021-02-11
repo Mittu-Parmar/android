@@ -21,7 +21,7 @@
         app:srcCompat="@drawable/mobile_img" />
 
     <TextView
-        android:id="@+id/cart_product_title"
+        android:id="@+id/order_product_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -36,11 +36,11 @@
         android:id="@+id/order_indicator"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        android:tint="@color/successGreen"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:tint="@color/successGreen"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cart_product_title"
+        app:layout_constraintTop_toBottomOf="@+id/order_product_title"
         app:srcCompat="@drawable/default_dot" />
 
     <TextView

@@ -23,6 +23,7 @@ import java.util.List;
 public class OrderFragment extends Fragment {
 
     RecyclerView ordersRecyclerView;
+    public static OrderAdapter orderAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,7 +35,7 @@ public class OrderFragment extends Fragment {
         ordersRecyclerView.setLayoutManager(linearLayoutManager);
 
 
-        OrderAdapter orderAdapter = new OrderAdapter(DbQueries.orderItemModelList);
+        orderAdapter = new OrderAdapter(DbQueries.orderItemModelList);
         ordersRecyclerView.setAdapter(orderAdapter);
 
         if (DbQueries.orderItemModelList.size() == 0) {

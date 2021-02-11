@@ -27,9 +27,9 @@ public class OrderItemModel {
     private Long productQuantity;
     private String userId;
 
-    int rating;
+    private int rating=0;
 
-    public OrderItemModel(String productId, String orderStatus, String address, String couponId, String cuttedPrice, Date orderedDate, Date packedDate, Date shippedDate, Date deliveredDate, Date cancelledDate, String discountedPrice, Long freeCoupons, String fullName, String orderId, String paymentMethod, String pinCode, String productPrice, Long productQuantity, String userId,String productImage,String productTitle) {
+    public OrderItemModel(String productId, String orderStatus, String address, String couponId, String cuttedPrice, Date orderedDate, Date packedDate, Date shippedDate, Date deliveredDate, Date cancelledDate, String discountedPrice, Long freeCoupons, String fullName, String orderId, String paymentMethod, String pinCode, String productPrice, Long productQuantity, String userId, String productImage, String productTitle) {
         this.productId = productId;
         this.orderStatus = orderStatus;
         this.address = address;
@@ -51,6 +51,15 @@ public class OrderItemModel {
         this.userId = userId;
         this.productImage = productImage;
         this.productTitle = productTitle;
+    }
+
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
     public String getProductId() {
@@ -220,8 +229,6 @@ public class OrderItemModel {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-
-
 
 
 }

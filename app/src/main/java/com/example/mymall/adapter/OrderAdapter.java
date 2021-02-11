@@ -11,12 +11,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.mymall.R;
 import com.example.mymall.activity.OrderDetailsActivity;
+import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.OrderItemModel;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
 
 import java.util.Date;
 import java.util.List;
@@ -40,27 +48,33 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
 
         String Image = orderItemModelList.get(position).getProductImage();
-        //int rating  = orderItemModelList.get(position);
+        String productId = orderItemModelList.get(position).getProductId();
+        int rating = orderItemModelList.get(position).getRating();
         String title = orderItemModelList.get(position).getProductTitle();
         String orderStatus = orderItemModelList.get(position).getOrderStatus();
         Date date;
         switch (orderStatus) {
             case "ordered":
                 date = orderItemModelList.get(position).getOrderedDate();
+                break;
             case "packed":
                 date = orderItemModelList.get(position).getPackedDate();
-            case "shopped":
+                break;
+            case "shipped":
                 date = orderItemModelList.get(position).getShippedDate();
+                break;
             case "delivered":
                 date = orderItemModelList.get(position).getDeliveredDate();
+                break;
             case "cancelled":
                 date = orderItemModelList.get(position).getCancelledDate();
+                break;
             default:
                 date = orderItemModelList.get(position).getCancelledDate();
-                break;
+
         }
 
-        holder.setDeta(Image, title, orderStatus, date);
+        holder.setDeta(Image, title, orderStatus, date, rating, productId,position);
     }
 
     @Override
@@ -82,19 +96,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
             productImage = itemView.findViewById(R.id.product_image);
             productDeliveryIndicator = itemView.findViewById(R.id.order_indicator);
-            productTitle = itemView.findViewById(R.id.cart_product_title);
+            productTitle = itemView.findViewById(R.id.order_product_title);
             productDeliveryStatus = itemView.findViewById(R.id.order_deleverd_date);
             rateNowContainer = itemView.findViewById(R.id.rate_now_container);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent orderDetailsIntent = new Intent(itemView.getContext(), OrderDetailsActivity.class);
-                    itemView.getContext().startActivity(orderDetailsIntent);
-                }
-            });
         }
 
-        private void setDeta(String image, String title, String orderStatus, Date date) {
+        private void setDeta(String image, String title, String orderStatus, Date date, final int rating, final String productId, final int position) {
             Glide.with(itemView.getContext()).load(image).into(this.productImage);
             this.productTitle.setText(title);
 
@@ -104,15 +111,57 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 this.productDeliveryIndicator.setImageTintList(ColorStateList.valueOf(itemView.getContext().getResources().getColor(R.color.successGreen)));
             }
 
-            this.productDeliveryStatus.setText(orderStatus + String.valueOf(date));
+            this.productDeliveryStatus.setText(orderStatus +" "+ (date));
 
-//            setRaring(rating);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent orderDetailsIntent = new Intent(itemView.getContext(), OrderDetailsActivity.class);
+                    orderDetailsIntent.putExtra("position",position);
+                    itemView.getContext().startActivity(orderDetailsIntent);
+                }
+            });
+
+
+            setRaring(rating);
             for (int x = 0; x < rateNowContainer.getChildCount(); x++) {
                 final int starPosition = x;
                 rateNowContainer.getChildAt(x).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         setRaring(starPosition);
+                        final DocumentReference documentReference = FirebaseFirestore.getInstance().collection("products").document(productId);
+                        FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Object>() {
+                            @Nullable
+                            @Override
+                            public Object apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                                DocumentSnapshot documentSnapshot = transaction.get(documentReference);
+
+                                if (rating != 0) {
+                                    Long increase = documentSnapshot.getLong(starPosition + " star") + 1;
+                                    Long decrease = documentSnapshot.getLong(rating + " star") - 1;
+                                    transaction.update(documentReference,starPosition + " star",increase);
+                                    transaction.update(documentReference,rating + " star",decrease);
+                                } else {
+                                    Long increase = documentSnapshot.getLong(starPosition + " star") + 1;
+                                    transaction.update(documentReference,starPosition + " star",increase);
+                                }
+                                return null;
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<Object>() {
+                            @Override
+                            public void onSuccess(Object o) {
+                                DbQueries.orderItemModelList.get(position).setRating(starPosition);
+                                if (DbQueries.myRatedIds.contains(productId)){
+                                    DbQueries.myRating.set(DbQueries.myRatedIds.indexOf(productId),Long.parseLong(String.valueOf(starPosition)));
+                                }else {
+                                    DbQueries.myRatedIds.add(productId);
+                                    DbQueries.myRating.add(Long.parseLong(String.valueOf(starPosition)));
+                                }
+                            }
+                        });
                     }
                 });
             }

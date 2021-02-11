@@ -23,6 +23,7 @@ import com.example.mymall.adapter.HomeAdapter;
 import com.example.mymall.adapter.OrderAdapter;
 import com.example.mymall.fragment.CartFragment;
 import com.example.mymall.fragment.HomeFragment;
+import com.example.mymall.fragment.OrderFragment;
 import com.example.mymall.fragment.RewardsFragment;
 import com.example.mymall.fragment.WishlistFragment;
 import com.example.mymall.model.AddressesModel;
@@ -442,6 +443,12 @@ public class DbQueries {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
+
+                        List<String> orderProductIds = new ArrayList<>();
+                        for (int x = 0; x < orderItemModelList.size(); x++) {
+                            orderProductIds.add(orderItemModelList.get(x).getProductId());
+                        }
+
                         for (long x = 0; x < (long) task.getResult().get("list size"); x++) {
                             myRatedIds.add(task.getResult().get("product id " + x).toString());
                             myRating.add((Long) task.getResult().get("rating " + x));
@@ -450,6 +457,12 @@ public class DbQueries {
                                 if (ProductDetailsActivity.rateNowContainer != null)
                                     ProductDetailsActivity.setRaring(initialRating);
                             }
+                            if (orderProductIds.contains(task.getResult().get("product id " + x).toString())) {
+                                orderItemModelList.get(orderProductIds.indexOf(task.getResult().get("product id " + x).toString())).setRating(Integer.parseInt(String.valueOf((Long) task.getResult().get("rating " + x))) - 1);
+                            }
+                        }
+                        if (OrderFragment.orderAdapter != null) {
+                            OrderFragment.orderAdapter.notifyDataSetChanged();
                         }
                     } else {
                         Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -572,7 +585,7 @@ public class DbQueries {
                                                 orderItems.getString("address"),
                                                 orderItems.getString("coupon id"),
                                                 orderItems.getString("cutted price"),
-                                                orderItems.getDate("order date"),
+                                                orderItems.getDate("ordered date"),
                                                 orderItems.getDate("packed date"),
                                                 orderItems.getDate("shipped date"),
                                                 orderItems.getDate("delivered date"),
@@ -590,6 +603,7 @@ public class DbQueries {
                                                 orderItems.getString("product title"));
                                         orderItemModelList.add(orderItemModel);
                                     }
+                                    loadRatingList(context);
                                     orderAdapter.notifyDataSetChanged();
                                 } else {
                                     Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
