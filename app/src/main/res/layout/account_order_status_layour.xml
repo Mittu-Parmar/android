@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginLeft="8dp"
+    android:background="@drawable/layout_background"
     android:layout_marginRight="8dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -23,7 +24,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.mikhaellopez.circularimageview.CircularImageView
-        android:id="@+id/circularImageView"
+        android:id="@+id/currunt_order_image"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="8dp"
@@ -37,7 +38,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView20" />
 
     <TextView
-        android:id="@+id/textView29"
+        android:id="@+id/currant_order_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -50,7 +51,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/circularImageView" />
+        app:layout_constraintTop_toBottomOf="@+id/currunt_order_image" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -62,74 +63,79 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView29">
+        app:layout_constraintTop_toBottomOf="@+id/currant_order_status"
+        app:layout_constraintVertical_bias="0.0">
 
         <ImageView
-            android:id="@+id/imageView25"
+            android:id="@+id/account_order_indecator"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_weight="0"
-            android:tint="@color/successGreen"
+            android:tint="@color/greyBackground"
             android:translationX="30dp"
             app:srcCompat="@drawable/selected_dot" />
 
         <ProgressBar
-            android:id="@+id/progressBar10"
+            android:id="@+id/account_order_packed_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="5"
-            android:progress="100"
+            android:progress="0"
+            android:progressBackgroundTint="@color/greyBackground"
             android:progressTint="@color/successGreen"
             android:translationX="20dp" />
 
         <ImageView
-            android:id="@+id/imageView29"
+            android:id="@+id/account_packed_indecator"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_weight="0"
-            android:tint="@color/successGreen"
+            android:tint="@color/greyBackground"
             android:translationX="10dp"
             app:srcCompat="@drawable/selected_dot" />
 
         <ProgressBar
-            android:id="@+id/progressBar11"
+            android:id="@+id/account_packed_shipped_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="5"
-            android:progress="100"
+            android:progress="0"
+            android:progressBackgroundTint="@color/greyBackground"
             android:progressTint="@color/successGreen" />
 
         <ImageView
-            android:id="@+id/imageView26"
+            android:id="@+id/account_shipped_indecator"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_weight="0"
-            android:tint="@color/successGreen"
+            android:tint="@color/greyBackground"
             android:translationX="-10dp"
             app:srcCompat="@drawable/selected_dot" />
 
         <ProgressBar
-            android:id="@+id/progressBar12"
+            android:id="@+id/account_shipped_delivered_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="5"
-            android:progress="100"
+            android:progress="0"
+            android:progressBackgroundTint="@color/greyBackground"
             android:progressTint="@color/successGreen"
             android:translationX="-20dp" />
 
         <ImageView
-            android:id="@+id/imageView27"
+            android:id="@+id/account_delivered_indecator"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_weight="0"
-            android:tint="@color/successGreen"
+            android:tint="@color/greyBackground"
             android:translationX="-30dp"
             app:srcCompat="@drawable/selected_dot" />
 

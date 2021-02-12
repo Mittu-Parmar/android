@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mymall.R;
@@ -55,6 +56,8 @@ import static com.example.mymall.activity.ProductDetailsActivity.initialRating;
 import static com.example.mymall.activity.ProductDetailsActivity.productId;
 
 public class DbQueries {
+
+    public static String fullName, email, profile;
 
     public static FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     public static List<CategoryModel> categoryModelList = new ArrayList();
@@ -475,7 +478,7 @@ public class DbQueries {
         }
     }
 
-    public static void loadAddresses(final Dialog loadingDialog, final Context context) {
+    public static void loadAddresses(final Dialog loadingDialog, final Context context, final boolean gotoDeliveryActivity) {
 
         addressModelList.clear();
 
@@ -484,7 +487,7 @@ public class DbQueries {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Intent deliveryIntent;
+                    Intent deliveryIntent = null;
                     if ((long) task.getResult().get("list size") == 0) {
                         deliveryIntent = new Intent(context, AddAddressActivity.class);
                         deliveryIntent.putExtra("INTENT", "deliveryIntent");
@@ -500,9 +503,13 @@ public class DbQueries {
                                 selectedAddress = Integer.parseInt(String.valueOf(x - 1));
                             }
                         }
-                        deliveryIntent = new Intent(context, DeliveryActivity.class);
+                        if (gotoDeliveryActivity) {
+                            deliveryIntent = new Intent(context, DeliveryActivity.class);
+                        }
                     }
-                    context.startActivity(deliveryIntent);
+                    if (gotoDeliveryActivity) {
+                        context.startActivity(deliveryIntent);
+                    }
                 } else {
                     Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -566,7 +573,7 @@ public class DbQueries {
                 });
     }
 
-    public static void loadOrders(final Context context, final OrderAdapter orderAdapter, final Dialog loadingDialog) {
+    public static void loadOrders(final Context context, @Nullable final OrderAdapter orderAdapter, final Dialog loadingDialog) {
 
         orderItemModelList.clear();
         firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").orderBy("time", Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -608,7 +615,9 @@ public class DbQueries {
                                         orderItemModelList.add(orderItemModel);
                                     }
                                     loadRatingList(context);
-                                    orderAdapter.notifyDataSetChanged();
+                                    if (orderAdapter != null) {
+                                        orderAdapter.notifyDataSetChanged();
+                                    }
                                 } else {
                                     Toast.makeText(context, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }

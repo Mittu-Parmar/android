@@ -18,15 +18,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.mymall.R;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.fragment.SigninFragment;
 import com.example.mymall.fragment.SignupFragment;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.mikhaellopez.circularimageview.CircularImageView;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
@@ -54,13 +62,17 @@ public class MainActivity extends AppCompatActivity {
     private TextView bedgeCount;
     public static Activity mainActivity;
     public static NavController navController;
-    public static boolean resetMainActivity=false;
+    public static boolean resetMainActivity = false;
+
+    private CircularImageView profileImageView;
+    private TextView fullName, email;
+    private ImageView addProfileIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mainActivity=MainActivity.this;
+        mainActivity = MainActivity.this;
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -80,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
 
         navigationView.getMenu().getItem(0).setChecked(true);
+
+        profileImageView = navigationView.getHeaderView(0).findViewById(R.id.main_profile_image);
+        fullName = navigationView.getHeaderView(0).findViewById(R.id.main_full_name);
+        email = navigationView.getHeaderView(0).findViewById(R.id.main_email);
+        addProfileIcon = navigationView.getHeaderView(0).findViewById(R.id.add_profile_icon);
 
         signInOutDialog = new Dialog(MainActivity.this);
         signInOutDialog.setContentView(R.layout.sign_in_dialog);
@@ -147,10 +164,33 @@ public class MainActivity extends AppCompatActivity {
             }
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
+            FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid())
+                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DbQueries.fullName = task.getResult().getString("full name");
+                        DbQueries.email = task.getResult().getString("email");
+                        DbQueries.profile = task.getResult().getString("profile");
+
+                        fullName.setText(DbQueries.fullName);
+                        email.setText(DbQueries.email);
+                        if (DbQueries.profile.equals("")) {
+                            addProfileIcon.setVisibility(View.VISIBLE);
+                        } else {
+                            addProfileIcon.setVisibility(View.INVISIBLE);
+                            Glide.with(MainActivity.this).load(DbQueries.profile).apply(new RequestOptions().placeholder(R.drawable.place_holder_icon)).into(profileImageView);
+                        }
+
+                    } else {
+                        Toast.makeText(MainActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
         }
-        if (resetMainActivity){
-            resetMainActivity=false;
+        if (resetMainActivity) {
+            resetMainActivity = false;
             navController.navigate(R.id.nav_home);
         }
 
@@ -170,9 +210,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (currentUser != null) {
             if (DbQueries.cartList.size() == 0) {
-                DbQueries.loadCartList(MainActivity.this, new Dialog(MainActivity.this), false, bedgeCount,new TextView(MainActivity.this));
-            }else {
-                    bedgeCount.setVisibility(View.VISIBLE);
+                DbQueries.loadCartList(MainActivity.this, new Dialog(MainActivity.this), false, bedgeCount, new TextView(MainActivity.this));
+            } else {
+                bedgeCount.setVisibility(View.VISIBLE);
                 if (DbQueries.cartList.size() < 99) {
                     bedgeCount.setText(String.valueOf(DbQueries.cartList.size()));
                 } else {

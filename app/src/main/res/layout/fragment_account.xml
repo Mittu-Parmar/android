@@ -11,14 +11,30 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/layout_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/acount_profile_data_layout"/>
+            <include layout="@layout/acount_profile_data_layout" />
+
             <include layout="@layout/account_order_status_layour" />
+
             <include layout="@layout/account_your_recent_ordes_layout" />
+
             <include layout="@layout/account_my_adderss_layout" />
+
+            <Button
+                android:id="@+id/sign_out_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:layout_marginRight="8dp"
+                android:layout_marginLeft="8dp"
+                android:textColor="@color/colorAccent"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="Sign Out" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
