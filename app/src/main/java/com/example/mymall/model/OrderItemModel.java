@@ -27,10 +27,11 @@ public class OrderItemModel {
     private Long productQuantity;
     private String userId;
     private String deliveryPrice;
+    private boolean cancellationRequested;
 
     private int rating=0;
 
-    public OrderItemModel(String productId, String orderStatus, String address, String couponId, String cuttedPrice, Date orderedDate, Date packedDate, Date shippedDate, Date deliveredDate, Date cancelledDate, String discountedPrice, Long freeCoupons, String fullName, String orderId, String paymentMethod, String pinCode, String productPrice, Long productQuantity, String userId, String productImage, String productTitle,String deliveryPrice) {
+    public OrderItemModel(String productId, String orderStatus, String address, String couponId, String cuttedPrice, Date orderedDate, Date packedDate, Date shippedDate, Date deliveredDate, Date cancelledDate, String discountedPrice, Long freeCoupons, String fullName, String orderId, String paymentMethod, String pinCode, String productPrice, Long productQuantity, String userId, String productImage, String productTitle,String deliveryPrice, boolean cancellationRequested) {
         this.productId = productId;
         this.orderStatus = orderStatus;
         this.address = address;
@@ -53,6 +54,15 @@ public class OrderItemModel {
         this.productImage = productImage;
         this.productTitle = productTitle;
         this.deliveryPrice=deliveryPrice;
+        this.cancellationRequested=cancellationRequested;
+    }
+
+    public boolean isCancellationRequested() {
+        return cancellationRequested;
+    }
+
+    public void setCancellationRequested(boolean cancellationRequested) {
+        this.cancellationRequested = cancellationRequested;
     }
 
     public String getDeliveryPrice() {

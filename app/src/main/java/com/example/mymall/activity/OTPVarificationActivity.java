@@ -15,6 +15,7 @@ import com.example.mymall.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -65,6 +66,7 @@ public class OTPVarificationActivity extends AppCompatActivity {
 
                                 Map<String, Object> userOrder = new HashMap<>();
                                 userOrder.put("order id", id);
+                                userOrder.put("time", FieldValue.serverTimestamp());
                                 FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").document(id).set(userOrder).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {

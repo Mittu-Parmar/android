@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -73,9 +74,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TextView pinCode;
 
     private TextView totalItems, totalItemsPrice, deliveryPrice, totalAmount, savedAmount;
-    private Dialog loadingDialog;
+    private Dialog loadingDialog, cancelDialog;
 
     private SimpleDateFormat simpleDateFormat;
+    private Button cancelOrderButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,13 +96,21 @@ public class OrderDetailsActivity extends AppCompatActivity {
         loadingDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.layout_background));
         loadingDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
+        cancelDialog = new Dialog(OrderDetailsActivity.this);
+        cancelDialog.setContentView(R.layout.order_cancel_dialog);
+        cancelDialog.setCancelable(true);
+        cancelDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.layout_background));
+//        cancelDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
         position = getIntent().getIntExtra("position", -1);
         final OrderItemModel orderItemModel = DbQueries.orderItemModelList.get(position);
 
         title = findViewById(R.id.order_details_product_title);
         quantity = findViewById(R.id.order_details_product_qty);
         price = findViewById(R.id.order_details_product_price);
+
         productImage = findViewById(R.id.order_details_product_image);
+        cancelOrderButton = findViewById(R.id.order_cancel_button);
 
         orderedIndicator = findViewById(R.id.orderd_indicator);
         packedIndicator = findViewById(R.id.packed_indicator);
@@ -138,6 +148,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         totalAmount = findViewById(R.id.total_price);
         savedAmount = findViewById(R.id.saved_amount);
 
+
         title.setText(orderItemModel.getProductTitle());
         if (!orderItemModel.getDiscountedPrice().equals("")) {
             price.setText("Rs." + orderItemModel.getDiscountedPrice() + "/-");
@@ -147,7 +158,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         quantity.setText("Qty " + String.valueOf(orderItemModel.getProductQuantity()));
         Glide.with(this).load(orderItemModel.getProductImage()).into(productImage);
 
-        simpleDateFormat=new SimpleDateFormat("EEE, dd MMM YYYY hh:mm aa");
+        simpleDateFormat = new SimpleDateFormat("EEE, dd MMM YYYY hh:mm aa");
 
         switch (orderItemModel.getOrderStatus()) {
             case "ordered":
@@ -387,6 +398,69 @@ public class OrderDetailsActivity extends AppCompatActivity {
             });
         }
 //            rating layout
+
+
+        if (orderItemModel.isCancellationRequested()) {
+            cancelOrderButton.setVisibility(View.VISIBLE);
+            cancelOrderButton.setEnabled(false);
+            cancelOrderButton.setText("Cancellation is process");
+            cancelOrderButton.setTextColor(getResources().getColor(R.color.colorPrimary));
+            cancelOrderButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+        } else {
+            if (orderItemModel.getOrderStatus().equals("ordered") || orderItemModel.getOrderStatus().equals("packed")) {
+                cancelOrderButton.setVisibility(View.VISIBLE);
+                cancelOrderButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        cancelDialog.findViewById(R.id.no_button).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                cancelDialog.dismiss();
+                            }
+                        });
+                        cancelDialog.findViewById(R.id.yes_button).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                cancelDialog.dismiss();
+                                loadingDialog.show();
+                                Map<String, Object> cancelledMap = new HashMap<>();
+                                cancelledMap.put("product id", orderItemModel.getProductId());
+                                cancelledMap.put("order id", orderItemModel.getOrderId());
+                                cancelledMap.put("order cancelled", false);
+                                FirebaseFirestore.getInstance().collection("cancelled orders").document().set(cancelledMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            FirebaseFirestore.getInstance().collection("orders").document(String.valueOf(orderItemModel.getOrderId())).collection("order items").document(orderItemModel.getProductId()).update("cancellation requested", true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        orderItemModel.setCancellationRequested(true);
+                                                        cancelOrderButton.setEnabled(false);
+                                                        cancelOrderButton.setText("Cancellation is process");
+                                                        cancelOrderButton.setTextColor(getResources().getColor(R.color.colorPrimary));
+                                                        cancelOrderButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                                                    } else {
+                                                        Toast.makeText(OrderDetailsActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                    loadingDialog.dismiss();
+                                                }
+                                            });
+                                        } else {
+                                            loadingDialog.dismiss();
+                                            Toast.makeText(OrderDetailsActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                        cancelDialog.show();
+                    }
+                });
+            }
+        }
+
 
         fullName.setText(orderItemModel.getFullName());
         address.setText(orderItemModel.getAddress());

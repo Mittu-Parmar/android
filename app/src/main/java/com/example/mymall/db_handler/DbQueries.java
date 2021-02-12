@@ -569,7 +569,7 @@ public class DbQueries {
     public static void loadOrders(final Context context, final OrderAdapter orderAdapter, final Dialog loadingDialog) {
 
         orderItemModelList.clear();
-        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").orderBy("time", Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -603,7 +603,8 @@ public class DbQueries {
                                                 orderItems.getString("user id"),
                                                 orderItems.getString("product image"),
                                                 orderItems.getString("product title"),
-                                                orderItems.getString("delivery price"));
+                                                orderItems.getString("delivery price"),
+                                                orderItems.getBoolean("cancellation requested"));
                                         orderItemModelList.add(orderItemModel);
                                     }
                                     loadRatingList(context);

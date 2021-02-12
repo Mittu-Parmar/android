@@ -389,6 +389,7 @@ public class DeliveryActivity extends AppCompatActivity {
         }
         //=========accessing quantity===========
 
+        loadingDialog.dismiss();
         // TODO: message sending api integration
         Toast.makeText(this, "Your Order is Confirm, your order id is:" + id, Toast.LENGTH_LONG).show();
 
@@ -433,7 +434,8 @@ public class DeliveryActivity extends AppCompatActivity {
                 orderDetails.put("full name", fullName.getText());
                 orderDetails.put("pin code", pincode.getText());
                 orderDetails.put("free coupons", cartItemModel.getFreeCoupens());
-                orderDetails.put("delivery rice", cartItemModel.getDeliveryPrice());
+                orderDetails.put("delivery price", cartItemModelList.get(cartItemModelList.size()-1).getDeliveryPrice());
+                orderDetails.put("cancellation requested", false);
 
                 firebaseFirestore.collection("orders").document(String.valueOf(id)).collection("order items").document(cartItemModel.getProductId()).set(orderDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -486,6 +488,7 @@ public class DeliveryActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Map<String, Object> userOrder = new HashMap<>();
                     userOrder.put("order id", id);
+                    userOrder.put("time",FieldValue.serverTimestamp());
                     firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").document(id).set(userOrder).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
