@@ -61,7 +61,7 @@
         app:srcCompat="@drawable/write_icon" />
 
     <LinearLayout
-        android:id="@+id/add_or_remove_layout"
+        android:id="@+id/option_ontainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"

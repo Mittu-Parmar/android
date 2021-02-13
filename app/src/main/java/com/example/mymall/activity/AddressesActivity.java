@@ -20,28 +20,26 @@ import android.widget.Toast;
 import com.example.mymall.R;
 import com.example.mymall.adapter.AddressesAdapter;
 import com.example.mymall.db_handler.DbQueries;
-import com.example.mymall.model.AddressesModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static com.example.mymall.model.AddressesModel.DELIVERY_ACTIVITY;
+import static com.example.mymall.model.AddressesModel.SELECT_ADDRESS;
 
 public class AddressesActivity extends AppCompatActivity {
 
     private int previousAddress;
     private Button deliverHearBtn;
-    RecyclerView addressesRecyclerView;
+    private RecyclerView addressesRecyclerView;
     static AddressesAdapter addressesAdapter;
     private TextView addNewAddAddressBtn;
     private TextView addressesSaved;
-    Dialog loadingDialog;
+    private Dialog loadingDialog;
+    private int mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +70,8 @@ public class AddressesActivity extends AppCompatActivity {
         addressesRecyclerView.setLayoutManager(linearLayoutManager);
 
 
-        int mode = getIntent().getIntExtra("MODE", -1);
-        if (mode == DELIVERY_ACTIVITY) {
+        mode = getIntent().getIntExtra("MODE", -1);
+        if (mode == SELECT_ADDRESS) {
             deliverHearBtn.setVisibility(View.VISIBLE);
         } else {
             deliverHearBtn.setVisibility(View.INVISIBLE);
@@ -139,10 +137,12 @@ public class AddressesActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            if (DbQueries.selectedAddress != previousAddress) {
-                DbQueries.addressModelList.get(DbQueries.selectedAddress).setSelected(false);
-                DbQueries.addressModelList.get(previousAddress).setSelected(true);
-                DbQueries.selectedAddress = previousAddress;
+            if (mode == SELECT_ADDRESS) {
+                if (DbQueries.selectedAddress != previousAddress) {
+                    DbQueries.addressModelList.get(DbQueries.selectedAddress).setSelected(false);
+                    DbQueries.addressModelList.get(previousAddress).setSelected(true);
+                    DbQueries.selectedAddress = previousAddress;
+                }
             }
             finish();
             return true;
@@ -153,12 +153,16 @@ public class AddressesActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (DbQueries.selectedAddress != previousAddress) {
-            DbQueries.addressModelList.get(DbQueries.selectedAddress).setSelected(false);
-            DbQueries.addressModelList.get(previousAddress).setSelected(true);
-            DbQueries.selectedAddress = previousAddress;
+
+        if (mode == SELECT_ADDRESS) {
+            if (DbQueries.selectedAddress != previousAddress) {
+                DbQueries.addressModelList.get(DbQueries.selectedAddress).setSelected(false);
+                DbQueries.addressModelList.get(previousAddress).setSelected(true);
+                DbQueries.selectedAddress = previousAddress;
+            }
+            super.onBackPressed();
         }
-        super.onBackPressed();
+        finish();
     }
 }
 

@@ -492,13 +492,20 @@ public class DbQueries {
                         deliveryIntent = new Intent(context, AddAddressActivity.class);
                         deliveryIntent.putExtra("INTENT", "deliveryIntent");
                     } else {
+
                         for (long x = 1; x < (long) task.getResult().get("list size") + 1; x++) {
                             addressModelList.add(new AddressesModel(
-                                    task.getResult().get("full name " + x).toString(),
-                                    task.getResult().get("address " + x).toString(),
-                                    task.getResult().get("pincode " + x).toString(),
-                                    (boolean) task.getResult().get("selected " + x),
-                                    task.getResult().get("mobile no " + x).toString()));
+                                    task.getResult().getBoolean("selected " + x),
+                                    task.getResult().getString("city "+x),
+                                    task.getResult().getString("locality "+x),
+                                    task.getResult().getString("flatNo "+x),
+                                    task.getResult().getString("pinCode "+x),
+                                    task.getResult().getString("landMark "+x),
+                                    task.getResult().getString("name "+x),
+                                    task.getResult().getString("mobileNo "+x),
+                                    task.getResult().getString("alternateMobileNo "+x),
+                                    task.getResult().getString("state "+x))
+                            );
                             if ((boolean) task.getResult().get("selected " + x)) {
                                 selectedAddress = Integer.parseInt(String.valueOf(x - 1));
                             }

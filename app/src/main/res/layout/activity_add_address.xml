@@ -173,7 +173,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
-                android:text="Button"
+                android:text="Add Address"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="6dp"
                 android:textColor="@color/colorAccent" />

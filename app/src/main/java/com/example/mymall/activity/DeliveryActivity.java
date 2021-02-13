@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.example.mymall.model.AddressesModel.DELIVERY_ACTIVITY;
+import static com.example.mymall.model.AddressesModel.SELECT_ADDRESS;
 
 public class DeliveryActivity extends AppCompatActivity {
 
@@ -130,7 +130,7 @@ public class DeliveryActivity extends AppCompatActivity {
             public void onClick(View v) {
                 getQtyIDs = false;
                 Intent addressesIntent = new Intent(DeliveryActivity.this, AddressesActivity.class);
-                addressesIntent.putExtra("MODE", DELIVERY_ACTIVITY);
+                addressesIntent.putExtra("MODE", SELECT_ADDRESS);
                 startActivity(addressesIntent);
             }
         });
@@ -144,7 +144,7 @@ public class DeliveryActivity extends AppCompatActivity {
                         allProductAvailable = false;
                         break;
                     }
-                    if (cartItemModel.getType()==CartItemModel.CART_ITEM) {
+                    if (cartItemModel.getType() == CartItemModel.CART_ITEM) {
                         if (!cartItemModel.isCod()) {
                             codButton.setEnabled(false);
                             codButton.setAlpha(0.5f);
@@ -264,8 +264,23 @@ public class DeliveryActivity extends AppCompatActivity {
 
         name = DbQueries.addressModelList.get(DbQueries.selectedAddress).getName();
         mobileNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getMobileNo();
-        fullName.setText(name + " - " + mobileNo);
-        fullAddress.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getAddress());
+        if (DbQueries.addressModelList.get(DbQueries.selectedAddress).getAlternateMobileNo().equals("")) {
+            fullName.setText(name + " - " + mobileNo);
+        } else {
+            fullName.setText(name + " - " + mobileNo + " or " + DbQueries.addressModelList.get(DbQueries.selectedAddress).getAlternateMobileNo());
+        }
+
+        String flatNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getFlatNo();
+        String locality = DbQueries.addressModelList.get(DbQueries.selectedAddress).getLocality();
+        String landMark = DbQueries.addressModelList.get(DbQueries.selectedAddress).getLandMark();
+        String city = DbQueries.addressModelList.get(DbQueries.selectedAddress).getCity();
+        String state = DbQueries.addressModelList.get(DbQueries.selectedAddress).getState();
+
+        if (landMark.equals("")) {
+            fullAddress.setText(flatNo + " " + locality + " " + city + " " + state);
+        } else {
+            fullAddress.setText(flatNo + " " + locality + " " + landMark + " " + city + " " + state);
+        }
         pincode.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getPinCode());
 
         if (codOrderConfirm == true) {
@@ -434,7 +449,7 @@ public class DeliveryActivity extends AppCompatActivity {
                 orderDetails.put("full name", fullName.getText());
                 orderDetails.put("pin code", pincode.getText());
                 orderDetails.put("free coupons", cartItemModel.getFreeCoupens());
-                orderDetails.put("delivery price", cartItemModelList.get(cartItemModelList.size()-1).getDeliveryPrice());
+                orderDetails.put("delivery price", cartItemModelList.get(cartItemModelList.size() - 1).getDeliveryPrice());
                 orderDetails.put("cancellation requested", false);
 
                 firebaseFirestore.collection("orders").document(String.valueOf(id)).collection("order items").document(cartItemModel.getProductId()).set(orderDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -488,7 +503,7 @@ public class DeliveryActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Map<String, Object> userOrder = new HashMap<>();
                     userOrder.put("order id", id);
-                    userOrder.put("time",FieldValue.serverTimestamp());
+                    userOrder.put("time", FieldValue.serverTimestamp());
                     firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user orders").document(id).set(userOrder).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {

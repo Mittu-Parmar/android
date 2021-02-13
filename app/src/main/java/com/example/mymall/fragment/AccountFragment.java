@@ -4,12 +4,10 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +21,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.mymall.R;
 import com.example.mymall.activity.AddressesActivity;
-import com.example.mymall.activity.DeliveryActivity;
-import com.example.mymall.activity.MainActivity;
 import com.example.mymall.activity.RegisterActivity;
 import com.example.mymall.adapter.AddressesAdapter;
 import com.example.mymall.db_handler.DbQueries;
@@ -95,84 +91,106 @@ public class AccountFragment extends Fragment {
         }
 
 
+        linearContainer.getChildAt(1).setVisibility(View.GONE);
         loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 for (OrderItemModel orderItemModel : DbQueries.orderItemModelList) {
                     if (!orderItemModel.isCancellationRequested()) {
                         if (!orderItemModel.getOrderStatus().equals("delivered") && !orderItemModel.getOrderStatus().equals("cancelled")) {
+
+                            linearContainer.getChildAt(1).setVisibility(View.VISIBLE);
                             Glide.with(getContext()).load(orderItemModel.getProductImage()).apply(new RequestOptions().placeholder(R.drawable.place_holder_icon)).into(currantOrderImage);
                             currantOrderStatusTextView.setText(orderItemModel.getOrderStatus());
 
                             switch (orderItemModel.getOrderStatus()) {
 
                                 case "ordered":
-                                    orderedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
                                     break;
                                 case "packed":
-                                    orderedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                                    packedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    packedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
                                     O_P_Progress.setProgress(100);
                                     break;
                                 case "shipped":
-                                    orderedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                                    packedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                                    shippedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    packedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    shippedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    O_P_Progress.setProgress(100);
                                     P_S_Progress.setProgress(100);
                                     break;
                                 case "out for delivery":
-                                    orderedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                                    packedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                                    shippedIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                                    deliveredIndicator.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    packedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    shippedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    deliveredIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                                    O_P_Progress.setProgress(100);
+                                    P_S_Progress.setProgress(100);
                                     S_D_Progress.setProgress(100);
                                     break;
                             }
 
-                            int i = 0;
-                            for (OrderItemModel myOrderItemModel : DbQueries.orderItemModelList) {
-                                if (i < 4) {
-                                    if (myOrderItemModel.getOrderStatus().equals("delivered")) {
-                                        Glide.with(getContext()).load(myOrderItemModel.getProductImage()).apply(new RequestOptions().placeholder(R.drawable.place_holder_icon)).into((ImageView) recentOrdersContainer.getChildAt(i));
-                                        i++;
-                                    }
-                                } else {
-                                    break;
-                                }
-                            }
-                            if (i == 0) {
-                                yourRecentOrderTitle.setText("No recent Orders.");
-                            }
-                            if (i < 3) {
-                                for (int x = i; x < 4; x++) {
-                                    recentOrdersContainer.getChildAt(x).setVisibility(View.GONE);
-                                }
-                            }
-
-                            loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                @Override
-                                public void onDismiss(DialogInterface dialog) {
-                                    loadingDialog.setOnDismissListener(null);
-                                    if (DbQueries.addressModelList.size() == 0) {
-                                        currentAddressFullName.setText("No Address");
-                                        currentAddressAddress.setText("");
-                                        currentAddressPinCode.setText("");
-                                    } else {
-                                        String nameText = DbQueries.addressModelList.get(DbQueries.selectedAddress).getName();
-                                        String mobileNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getMobileNo();
-                                        currentAddressFullName.setText(name + " - " + mobileNo);
-                                        currentAddressAddress.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getAddress());
-                                        currentAddressPinCode.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getPinCode());
-
-                                    }
-                                }
-                            });
-                            DbQueries.loadAddresses(loadingDialog, getContext(), false);
-                            return;
                         }
                     }
                 }
-                linearContainer.getChildAt(1).setVisibility(View.GONE);
+                int i = 0;
+                for (OrderItemModel myOrderItemModel : DbQueries.orderItemModelList) {
+                    if (i < 4) {
+                        if (myOrderItemModel.getOrderStatus().equals("delivered")) {
+                            Glide.with(getContext()).load(myOrderItemModel.getProductImage()).apply(new RequestOptions().placeholder(R.drawable.place_holder_icon)).into((ImageView) recentOrdersContainer.getChildAt(i));
+                            i++;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                if (i == 0) {
+                    yourRecentOrderTitle.setText("No recent Orders.");
+                }
+                if (i < 3) {
+                    for (int x = i; x < 4; x++) {
+                        recentOrdersContainer.getChildAt(x).setVisibility(View.GONE);
+                    }
+                }
+
+                loadingDialog.show();
+                loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        loadingDialog.setOnDismissListener(null);
+                        if (DbQueries.addressModelList.size() == 0) {
+                            currentAddressFullName.setText("No Address");
+                            currentAddressAddress.setText("");
+                            currentAddressPinCode.setText("");
+                        } else {
+                            String nameText, mobileNo;
+                            nameText = DbQueries.addressModelList.get(DbQueries.selectedAddress).getName();
+                            mobileNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getMobileNo();
+                            if (DbQueries.addressModelList.get(DbQueries.selectedAddress).getAlternateMobileNo().equals("")) {
+                                currentAddressFullName.setText(nameText + " - " + mobileNo);
+                            } else {
+                                currentAddressFullName.setText(nameText + " - " + mobileNo + " or " + DbQueries.addressModelList.get(DbQueries.selectedAddress).getAlternateMobileNo());
+                            }
+
+                            String flatNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getFlatNo();
+                            String locality = DbQueries.addressModelList.get(DbQueries.selectedAddress).getLocality();
+                            String landMark = DbQueries.addressModelList.get(DbQueries.selectedAddress).getLandMark();
+                            String city = DbQueries.addressModelList.get(DbQueries.selectedAddress).getCity();
+                            String state = DbQueries.addressModelList.get(DbQueries.selectedAddress).getState();
+
+                            if (landMark.equals("")) {
+                                currentAddressAddress.setText(flatNo + " " + locality + " " + city + " " + state);
+                            } else {
+                                currentAddressAddress.setText(flatNo + " " + locality + " " + landMark + " " + city + " " + state);
+                            }
+                            currentAddressPinCode.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getPinCode());
+
+
+                        }
+                    }
+                });
+                DbQueries.loadAddresses(loadingDialog, getContext(), false);
             }
         });
 
@@ -183,7 +201,7 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent AddressesIntent = new Intent(getContext(), AddressesActivity.class);
-                AddressesAdapter.mode = AddressesModel.ACCOUNT_FRAGMENT;
+                AddressesAdapter.mode = AddressesModel.MANAGE_ADDRESS;
                 startActivity(AddressesIntent);
             }
         });
