@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -159,34 +160,12 @@ public class AccountFragment extends Fragment {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                         loadingDialog.setOnDismissListener(null);
-                        if (DbQueries.addressModelList.size() == 0) {
+                        if (DbQueries.addressesModelList.size() == 0) {
                             currentAddressFullName.setText("No Address");
                             currentAddressAddress.setText("");
                             currentAddressPinCode.setText("");
                         } else {
-                            String nameText, mobileNo;
-                            nameText = DbQueries.addressModelList.get(DbQueries.selectedAddress).getName();
-                            mobileNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getMobileNo();
-                            if (DbQueries.addressModelList.get(DbQueries.selectedAddress).getAlternateMobileNo().equals("")) {
-                                currentAddressFullName.setText(nameText + " - " + mobileNo);
-                            } else {
-                                currentAddressFullName.setText(nameText + " - " + mobileNo + " or " + DbQueries.addressModelList.get(DbQueries.selectedAddress).getAlternateMobileNo());
-                            }
-
-                            String flatNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getFlatNo();
-                            String locality = DbQueries.addressModelList.get(DbQueries.selectedAddress).getLocality();
-                            String landMark = DbQueries.addressModelList.get(DbQueries.selectedAddress).getLandMark();
-                            String city = DbQueries.addressModelList.get(DbQueries.selectedAddress).getCity();
-                            String state = DbQueries.addressModelList.get(DbQueries.selectedAddress).getState();
-
-                            if (landMark.equals("")) {
-                                currentAddressAddress.setText(flatNo + " " + locality + " " + city + " " + state);
-                            } else {
-                                currentAddressAddress.setText(flatNo + " " + locality + " " + landMark + " " + city + " " + state);
-                            }
-                            currentAddressPinCode.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getPinCode());
-
-
+                            setAddress();
                         }
                     }
                 });
@@ -218,5 +197,44 @@ public class AccountFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!loadingDialog.isShowing()){
+            if (DbQueries.addressesModelList.size() == 0) {
+                currentAddressFullName.setText("No Address");
+                currentAddressAddress.setText("");
+                currentAddressPinCode.setText("");
+            } else {
+                setAddress();
+            }
+        }
+    }
+
+    private void setAddress() {
+
+        String nameText, mobileNo;
+        nameText = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getName();
+        mobileNo = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getMobileNo();
+        if (DbQueries.addressesModelList.get(DbQueries.selectedAddress).getAlternateMobileNo().equals("")) {
+            currentAddressFullName.setText(nameText + " - " + mobileNo);
+        } else {
+            currentAddressFullName.setText(nameText + " - " + mobileNo + " or " + DbQueries.addressesModelList.get(DbQueries.selectedAddress).getAlternateMobileNo());
+        }
+
+        String flatNo = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getFlatNo();
+        String locality = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getLocality();
+        String landMark = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getLandMark();
+        String city = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getCity();
+        String state = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getState();
+
+        if (landMark.equals("")) {
+            currentAddressAddress.setText(flatNo + " " + locality + " " + city + " " + state);
+        } else {
+            currentAddressAddress.setText(flatNo + " " + locality + " " + landMark + " " + city + " " + state);
+        }
+        currentAddressPinCode.setText(DbQueries.addressesModelList.get(DbQueries.selectedAddress).getPinCode());
     }
 }

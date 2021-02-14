@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -57,6 +58,12 @@ public class AddressesActivity extends AppCompatActivity {
         loadingDialog.setCancelable(false);
         loadingDialog.getWindow().setBackgroundDrawable(this.getDrawable(R.drawable.layout_background));
         loadingDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                addressesSaved.setText(DbQueries.addressesModelList.size() + " saved addresses");
+            }
+        });
 
         findViewById(R.id.addresses_Deliver_hear_btn).setVisibility(View.GONE);
         addressesRecyclerView = findViewById(R.id.addresses_recycler_view);
@@ -109,7 +116,7 @@ public class AddressesActivity extends AppCompatActivity {
             }
         });
 
-        addressesAdapter = new AddressesAdapter(DbQueries.addressModelList);
+        addressesAdapter = new AddressesAdapter(DbQueries.addressesModelList, loadingDialog);
         addressesRecyclerView.setAdapter(addressesAdapter);
         addressesAdapter.notifyDataSetChanged();
         ((SimpleItemAnimator) addressesRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -118,12 +125,21 @@ public class AddressesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent addAddressIntent = new Intent(AddressesActivity.this, AddAddressActivity.class);
-                addAddressIntent.putExtra("INTENT", "null");
+                if (mode != SELECT_ADDRESS) {
+                    addAddressIntent.putExtra("INTENT", "manage");
+                } else {
+                    addAddressIntent.putExtra("INTENT", "null");
+                }
                 startActivity(addAddressIntent);
             }
         });
 
-        addressesSaved.setText(DbQueries.addressModelList.size() + " saved addresses");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        addressesSaved.setText(DbQueries.addressesModelList.size() + " saved addresses");
     }
 
     public static void refreshItem(int deselect, int select) {
@@ -139,8 +155,8 @@ public class AddressesActivity extends AppCompatActivity {
         if (id == android.R.id.home) {
             if (mode == SELECT_ADDRESS) {
                 if (DbQueries.selectedAddress != previousAddress) {
-                    DbQueries.addressModelList.get(DbQueries.selectedAddress).setSelected(false);
-                    DbQueries.addressModelList.get(previousAddress).setSelected(true);
+                    DbQueries.addressesModelList.get(DbQueries.selectedAddress).setSelected(false);
+                    DbQueries.addressesModelList.get(previousAddress).setSelected(true);
                     DbQueries.selectedAddress = previousAddress;
                 }
             }
@@ -156,8 +172,8 @@ public class AddressesActivity extends AppCompatActivity {
 
         if (mode == SELECT_ADDRESS) {
             if (DbQueries.selectedAddress != previousAddress) {
-                DbQueries.addressModelList.get(DbQueries.selectedAddress).setSelected(false);
-                DbQueries.addressModelList.get(previousAddress).setSelected(true);
+                DbQueries.addressesModelList.get(DbQueries.selectedAddress).setSelected(false);
+                DbQueries.addressesModelList.get(previousAddress).setSelected(true);
                 DbQueries.selectedAddress = previousAddress;
             }
             super.onBackPressed();

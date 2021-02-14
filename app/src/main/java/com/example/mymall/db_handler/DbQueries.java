@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -74,7 +73,7 @@ public class DbQueries {
     public static List<String> cartList = new ArrayList<>();
     public static List<CartItemModel> cartItemModelList = new ArrayList<>();
 
-    public static List<AddressesModel> addressModelList = new ArrayList<>();
+    public static List<AddressesModel> addressesModelList = new ArrayList<>();
     public static int selectedAddress = -1;
 
     public static List<RewardsModel> rewardsModelList = new ArrayList<>();
@@ -480,7 +479,7 @@ public class DbQueries {
 
     public static void loadAddresses(final Dialog loadingDialog, final Context context, final boolean gotoDeliveryActivity) {
 
-        addressModelList.clear();
+        addressesModelList.clear();
 
         firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my addresses")
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -494,7 +493,7 @@ public class DbQueries {
                     } else {
 
                         for (long x = 1; x < (long) task.getResult().get("list size") + 1; x++) {
-                            addressModelList.add(new AddressesModel(
+                            addressesModelList.add(new AddressesModel(
                                     task.getResult().getBoolean("selected " + x),
                                     task.getResult().getString("city "+x),
                                     task.getResult().getString("locality "+x),
@@ -650,7 +649,7 @@ public class DbQueries {
         cartItemModelList.clear();
         myRatedIds.clear();
         myRating.clear();
-        addressModelList.clear();
+        addressesModelList.clear();
         rewardsModelList.clear();
         orderItemModelList.clear();
     }

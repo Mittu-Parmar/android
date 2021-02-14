@@ -19,19 +19,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.mymall.R;
-import com.example.mymall.activity.AddAddressActivity;
-import com.example.mymall.activity.AddressesActivity;
 import com.example.mymall.activity.DeliveryActivity;
-import com.example.mymall.activity.MainActivity;
-import com.example.mymall.activity.ProductDetailsActivity;
 import com.example.mymall.adapter.CartAdapter;
-import com.example.mymall.adapter.WishlistAdapter;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.CartItemModel;
 import com.example.mymall.model.RewardsModel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CartFragment extends Fragment {
 
@@ -84,7 +78,7 @@ public class CartFragment extends Fragment {
                 DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
 
                 loadingDialog.show();
-                if (DbQueries.addressModelList.size()==0) {
+                if (DbQueries.addressesModelList.size()==0) {
                     DbQueries.loadAddresses(loadingDialog, getContext(),true);
                 }else {
                     loadingDialog.dismiss();

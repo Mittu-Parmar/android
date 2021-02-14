@@ -262,26 +262,26 @@ public class DeliveryActivity extends AppCompatActivity {
         }
         //=========accessing quantity===========
 
-        name = DbQueries.addressModelList.get(DbQueries.selectedAddress).getName();
-        mobileNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getMobileNo();
-        if (DbQueries.addressModelList.get(DbQueries.selectedAddress).getAlternateMobileNo().equals("")) {
+        name = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getName();
+        mobileNo = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getMobileNo();
+        if (DbQueries.addressesModelList.get(DbQueries.selectedAddress).getAlternateMobileNo().equals("")) {
             fullName.setText(name + " - " + mobileNo);
         } else {
-            fullName.setText(name + " - " + mobileNo + " or " + DbQueries.addressModelList.get(DbQueries.selectedAddress).getAlternateMobileNo());
+            fullName.setText(name + " - " + mobileNo + " or " + DbQueries.addressesModelList.get(DbQueries.selectedAddress).getAlternateMobileNo());
         }
 
-        String flatNo = DbQueries.addressModelList.get(DbQueries.selectedAddress).getFlatNo();
-        String locality = DbQueries.addressModelList.get(DbQueries.selectedAddress).getLocality();
-        String landMark = DbQueries.addressModelList.get(DbQueries.selectedAddress).getLandMark();
-        String city = DbQueries.addressModelList.get(DbQueries.selectedAddress).getCity();
-        String state = DbQueries.addressModelList.get(DbQueries.selectedAddress).getState();
+        String flatNo = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getFlatNo();
+        String locality = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getLocality();
+        String landMark = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getLandMark();
+        String city = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getCity();
+        String state = DbQueries.addressesModelList.get(DbQueries.selectedAddress).getState();
 
         if (landMark.equals("")) {
             fullAddress.setText(flatNo + " " + locality + " " + city + " " + state);
         } else {
             fullAddress.setText(flatNo + " " + locality + " " + landMark + " " + city + " " + state);
         }
-        pincode.setText(DbQueries.addressModelList.get(DbQueries.selectedAddress).getPinCode());
+        pincode.setText(DbQueries.addressesModelList.get(DbQueries.selectedAddress).getPinCode());
 
         if (codOrderConfirm == true) {
             showConfirmationLayout();

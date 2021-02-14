@@ -34,7 +34,6 @@ import com.example.mymall.fragment.SigninFragment;
 import com.example.mymall.fragment.SignupFragment;
 import com.example.mymall.model.CartItemModel;
 import com.example.mymall.model.ProductSpecificationModel;
-import com.example.mymall.model.RewardsModel;
 import com.example.mymall.model.WishListModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -649,7 +648,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             documentSnapshot.getBoolean("cod")));
                     DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
 
-                    if (DbQueries.addressModelList.size() == 0) {
+                    if (DbQueries.addressesModelList.size() == 0) {
                         DbQueries.loadAddresses(loadingDialog, ProductDetailsActivity.this,true);
                     } else {
                         loadingDialog.dismiss();
