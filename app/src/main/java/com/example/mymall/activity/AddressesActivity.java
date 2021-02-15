@@ -11,6 +11,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,7 @@ public class AddressesActivity extends AppCompatActivity {
     private int previousAddress;
     private Button deliverHearBtn;
     private RecyclerView addressesRecyclerView;
-    static AddressesAdapter addressesAdapter;
+    public static AddressesAdapter addressesAdapter;
     private TextView addNewAddAddressBtn;
     private TextView addressesSaved;
     private Dialog loadingDialog;

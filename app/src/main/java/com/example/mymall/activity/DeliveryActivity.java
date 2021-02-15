@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mymall.R;
+import com.example.mymall.adapter.AddressesAdapter;
 import com.example.mymall.adapter.CartAdapter;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.CartItemModel;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.example.mymall.model.AddressesModel.MANAGE_ADDRESS;
 import static com.example.mymall.model.AddressesModel.SELECT_ADDRESS;
 
 public class DeliveryActivity extends AppCompatActivity {
@@ -130,6 +132,7 @@ public class DeliveryActivity extends AppCompatActivity {
             public void onClick(View v) {
                 getQtyIDs = false;
                 Intent addressesIntent = new Intent(DeliveryActivity.this, AddressesActivity.class);
+                AddressesAdapter.mode = SELECT_ADDRESS;
                 addressesIntent.putExtra("MODE", SELECT_ADDRESS);
                 startActivity(addressesIntent);
             }

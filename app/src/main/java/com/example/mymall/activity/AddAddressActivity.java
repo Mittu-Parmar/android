@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.mymall.R;
+import com.example.mymall.adapter.AddressesAdapter;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.AddressesModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -146,12 +148,13 @@ public class AddAddressActivity extends AppCompatActivity {
 
                                         if (!updateAddress) {
                                             addAddress.put("list size", (long) DbQueries.addressesModelList.size() + 1);
+
                                             if (getIntent().getStringExtra("INTENT").equals("manage")) {
-                                                if (DbQueries.addressesModelList.size() == 0) {
+//                                                if (DbQueries.addressesModelList.size() == 0) {
                                                     addAddress.put("selected " + String.valueOf(position + 1), true);
-                                                } else {
-                                                    addAddress.put("selected " + String.valueOf(position + 1), false);
-                                                }
+//                                                } else {
+//                                                    addAddress.put("selected " + String.valueOf(position + 1), false);
+//                                                }
                                             } else {
                                                 addAddress.put("selected " + String.valueOf(position + 1), true);
                                             }
@@ -166,15 +169,15 @@ public class AddAddressActivity extends AppCompatActivity {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()) {
+
                                                     if (!updateAddress) {
                                                         if (DbQueries.addressesModelList.size() > 0) {
                                                             DbQueries.addressesModelList.get(DbQueries.selectedAddress).setSelected(false);
                                                         }
                                                         DbQueries.addressesModelList.add(new AddressesModel(true, city.getText().toString(), locality.getText().toString(), flatNo.getText().toString(), pinCode.getText().toString(), landMark.getText().toString(), name.getText().toString(), mobileNo.getText().toString(), alternateMobileNo.getText().toString(), selectedState));
 
-
                                                         if (getIntent().getStringExtra("INTENT").equals("manage")) {
-                                                            if (DbQueries.addressesModelList.size() == 0) {
+                                                            if (DbQueries.addressesModelList.size() > 0) {
                                                                 DbQueries.selectedAddress = DbQueries.addressesModelList.size() - 1;
                                                             }
                                                         } else {
@@ -191,11 +194,12 @@ public class AddAddressActivity extends AppCompatActivity {
                                                     } else {
                                                         AddressesActivity.refreshItem(DbQueries.selectedAddress, DbQueries.addressesModelList.size() - 1);
                                                     }
+                                                    AddressesActivity.addressesAdapter.notifyDataSetChanged();
                                                     finish();
                                                 } else {
                                                     Toast.makeText(AddAddressActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                                 }
-                                                loadingDialog.show();
+                                                loadingDialog.dismiss();
                                             }
                                         });
                                     } else {

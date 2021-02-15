@@ -23,14 +23,18 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.mymall.R;
 import com.example.mymall.activity.AddressesActivity;
 import com.example.mymall.activity.RegisterActivity;
+import com.example.mymall.activity.UpdateUserInfoActivity;
 import com.example.mymall.adapter.AddressesAdapter;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.model.AddressesModel;
 import com.example.mymall.model.OrderItemModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import static com.example.mymall.db_handler.DbQueries.clearData;
+import static com.example.mymall.model.AddressesModel.MANAGE_ADDRESS;
+import static com.example.mymall.model.AddressesModel.SELECT_ADDRESS;
 
 public class AccountFragment extends Fragment {
 
@@ -44,6 +48,7 @@ public class AccountFragment extends Fragment {
     private ProgressBar O_P_Progress, P_S_Progress, S_D_Progress;
     private TextView currentAddressFullName, currentAddressAddress, currentAddressPinCode;
     private Button signOutButton;
+    private FloatingActionButton settingButton;
 
 
     @Override
@@ -62,6 +67,8 @@ public class AccountFragment extends Fragment {
         profileView = view.findViewById(R.id.profile_image);
         name = view.findViewById(R.id.user_name);
         email = view.findViewById(R.id.user_email);
+
+        settingButton=view.findViewById(R.id.floating_action_button);
 
         linearContainer = view.findViewById(R.id.layout_container);
 
@@ -179,9 +186,10 @@ public class AccountFragment extends Fragment {
         viewAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent AddressesIntent = new Intent(getContext(), AddressesActivity.class);
-                AddressesAdapter.mode = AddressesModel.MANAGE_ADDRESS;
-                startActivity(AddressesIntent);
+                Intent addressesIntent = new Intent(getContext(), AddressesActivity.class);
+                AddressesAdapter.mode = MANAGE_ADDRESS;
+                addressesIntent.putExtra("MODE", MANAGE_ADDRESS);
+                startActivity(addressesIntent);
             }
         });
 
@@ -193,6 +201,18 @@ public class AccountFragment extends Fragment {
                 Intent registerIntent = new Intent(getContext(), RegisterActivity.class);
                 startActivity(registerIntent);
                 getActivity().finish();
+            }
+        });
+
+        settingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent updateUserInfoIntent=new Intent(getContext(), UpdateUserInfoActivity.class);
+                updateUserInfoIntent.putExtra("name",name.getText());
+                updateUserInfoIntent.putExtra("email",email.getText());
+                updateUserInfoIntent.putExtra("photo",DbQueries.profile);
+                startActivity(updateUserInfoIntent);
+
             }
         });
 
