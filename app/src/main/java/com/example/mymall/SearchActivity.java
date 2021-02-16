@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +49,7 @@ public class SearchActivity extends AppCompatActivity {
         final List<String> ids = new ArrayList<>();
 
         final Adapter adapter = new Adapter(list, false);
+        adapter.setFromSearch(true);
         recyclerView.setAdapter(adapter);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -80,6 +80,8 @@ public class SearchActivity extends AppCompatActivity {
                                             documentSnapshots.get("cutted price").toString(),
                                             (boolean) documentSnapshots.get("cod"),
                                             true);
+
+                                    model.setTags((ArrayList<String>) documentSnapshots.get("tags"));
 
                                     if (!ids.contains(model.getProductId())) {
                                         list.add(model);
@@ -115,8 +117,11 @@ public class SearchActivity extends AppCompatActivity {
 
     class Adapter extends WishlistAdapter implements Filterable {
 
+        private List<WishListModel> originalList;
+
         public Adapter(List<WishListModel> wishListModelList, boolean isFromViewAll) {
             super(wishListModelList, isFromViewAll);
+            this.originalList = wishListModelList;
         }
 
         @Override
@@ -125,14 +130,38 @@ public class SearchActivity extends AppCompatActivity {
                 @Override
                 protected FilterResults performFiltering(CharSequence constraint) {
 
-                    // TODO: 16-02-2021 Filter logic
+                    FilterResults results = new FilterResults();
+                    List<WishListModel> filterList = new ArrayList<>();
+                    final String[] tags = constraint.toString().toLowerCase().split(" ");
 
-                    return null;
+                    for (WishListModel model : originalList) {
+                        ArrayList<String> presentTags = new ArrayList<>();
+                        for (String tag : tags) {
+                            if (model.getTags().contains(tag)) {
+                                presentTags.add(tag);
+                            }
+                        }
+                        model.setTags(presentTags);
+                    }
+                    for (int i = tags.length; i > 0; i--) {
+                        for (WishListModel model : originalList) {
+                            if (model.getTags().size() == i) {
+                                filterList.add(model);
+                            }
+                        }
+                    }
+
+                    results.values = filterList;
+                    results.count = filterList.size();
+                    return results;
                 }
 
                 @Override
                 protected void publishResults(CharSequence constraint, FilterResults results) {
 
+                    if (results.count > 0) {
+                        setWishListModelList((List<WishListModel>) results.values);
+                    }
                     notifyDataSetChanged();
 
                 }

@@ -1,20 +1,23 @@
 package com.example.mymall.model;
 
+import java.util.ArrayList;
+
 public class WishListModel {
 
-    String productId;
-    String image;
-    String productTitle;
-    long freeCoupens;
-    String rating;
-    long totalRatings;
-    String productPrice;
-    String cuttedPrice;
-    boolean cod;
-    boolean inStock;
+    private String productId;
+    private String image;
+    private String productTitle;
+    private long freeCoupens;
+    private String rating;
+    private long totalRatings;
+    private String productPrice;
+    private String cuttedPrice;
+    private boolean cod;
+    private boolean inStock;
+    private ArrayList<String> tags;
 
-    public WishListModel(String productId, String image, String productTitle, long freeCoupens, String rating, long totalRatings, String productPrice, String cuttedPrice, boolean cod,boolean inStock) {
-        this.productId=productId;
+    public WishListModel(String productId, String image, String productTitle, long freeCoupens, String rating, long totalRatings, String productPrice, String cuttedPrice, boolean cod, boolean inStock) {
+        this.productId = productId;
         this.image = image;
         this.productTitle = productTitle;
         this.freeCoupens = freeCoupens;
@@ -23,7 +26,15 @@ public class WishListModel {
         this.productPrice = productPrice;
         this.cuttedPrice = cuttedPrice;
         this.cod = cod;
-        this.inStock=inStock;
+        this.inStock = inStock;
+    }
+
+    public ArrayList<String> getTags() {
+        return this.tags;
+    }
+
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
     }
 
     public boolean isInStock() {

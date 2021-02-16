@@ -35,6 +35,15 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
     boolean isFromViewAll = false;
     private int lastPosition = -1;
 
+
+    public List<WishListModel> getWishListModelList() {
+        return wishListModelList;
+    }
+
+    public void setWishListModelList(List<WishListModel> wishListModelList) {
+        this.wishListModelList = wishListModelList;
+    }
+
     public boolean isFromSearch() {
         return fromSearch;
     }
