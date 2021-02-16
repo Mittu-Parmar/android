@@ -162,6 +162,8 @@ public class AccountFragment extends Fragment {
                     }
                 }
 
+                DbQueries.loadAddresses(loadingDialog, getContext(), false);
+
                 loadingDialog.show();
                 loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
@@ -176,7 +178,6 @@ public class AccountFragment extends Fragment {
                         }
                     }
                 });
-                DbQueries.loadAddresses(loadingDialog, getContext(), false);
             }
         });
 

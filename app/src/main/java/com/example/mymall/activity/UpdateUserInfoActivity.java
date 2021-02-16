@@ -61,7 +61,7 @@ public class UpdateUserInfoActivity extends AppCompatActivity {
             }
         });
         tabLayout.getTabAt(0).select();
-        setFragment(updateInfoFragment,true);
+        setFragment(updateInfoFragment, true);
     }
 
     private void setFragment(Fragment fragment, boolean setBundle) {
@@ -71,6 +71,11 @@ public class UpdateUserInfoActivity extends AppCompatActivity {
             bundle.putString("name", name);
             bundle.putString("email", email);
             bundle.putString("photo", photo);
+            fragment.setArguments(bundle);
+        } else {
+
+            Bundle bundle = new Bundle();
+            bundle.putString("email", email);
             fragment.setArguments(bundle);
         }
         fragmentTransaction.replace(frameLayout.getId(), fragment);
