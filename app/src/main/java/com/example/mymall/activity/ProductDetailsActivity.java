@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mymall.R;
+import com.example.mymall.SearchActivity;
 import com.example.mymall.adapter.ProductDetailsAdapter;
 import com.example.mymall.adapter.ProductImagesAdapter;
 import com.example.mymall.adapter.RewordsAdapter;
@@ -60,6 +61,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
     public static boolean runningWishlistQuery = false;
     public static boolean runningRaringQuery = false;
     public static boolean runningCartQuery = false;
+
+    public static boolean fromSearch=false;
 
     //    =============coupen Dialog================
     private TextView coupenTitle;
@@ -130,7 +133,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private static FirebaseUser currentUser;
     private TextView bedgeCount;
     private DocumentSnapshot documentSnapshot;
-    private boolean inStock=false;
+    private boolean inStock = false;
 
     public static String productId;
 
@@ -187,43 +190,43 @@ public class ProductDetailsActivity extends AppCompatActivity {
         //    =============loaing Dialog================
 
         //    =============coupen Dialog================
-                final Dialog checkCoupenPriceDialog = new Dialog(ProductDetailsActivity.this);
-                checkCoupenPriceDialog.setContentView(R.layout.coupem_redeem_dialog);
-                checkCoupenPriceDialog.setCancelable(true);
-                checkCoupenPriceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final Dialog checkCoupenPriceDialog = new Dialog(ProductDetailsActivity.this);
+        checkCoupenPriceDialog.setContentView(R.layout.coupem_redeem_dialog);
+        checkCoupenPriceDialog.setCancelable(true);
+        checkCoupenPriceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-                ImageView toggalRecyclerView = checkCoupenPriceDialog.findViewById(R.id.toggal_recycler_view);
-                coupensRecyclerView = checkCoupenPriceDialog.findViewById(R.id.coupens_recycler_view);
-                selectedCoupen = checkCoupenPriceDialog.findViewById(R.id.selected_coupen);
-                coupenTitle = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_title);
-                coupenExpiryDate = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_validity);
-                coupenBody = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_body);
+        ImageView toggalRecyclerView = checkCoupenPriceDialog.findViewById(R.id.toggal_recycler_view);
+        coupensRecyclerView = checkCoupenPriceDialog.findViewById(R.id.coupens_recycler_view);
+        selectedCoupen = checkCoupenPriceDialog.findViewById(R.id.selected_coupen);
+        coupenTitle = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_title);
+        coupenExpiryDate = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_validity);
+        coupenBody = checkCoupenPriceDialog.findViewById(R.id.rewords_item_coupen_body);
 
-                originalPrice = checkCoupenPriceDialog.findViewById(R.id.original_price);
-                discountedPrice = checkCoupenPriceDialog.findViewById(R.id.discounted_price);
+        originalPrice = checkCoupenPriceDialog.findViewById(R.id.original_price);
+        discountedPrice = checkCoupenPriceDialog.findViewById(R.id.discounted_price);
 
-                footerText = checkCoupenPriceDialog.findViewById(R.id.footer_text);
-                footerText.setVisibility(View.VISIBLE);
-                applyOrRemoveButtonContainer = checkCoupenPriceDialog.findViewById(R.id.apply_or_remove_buttons_container);
-                applyOrRemoveButtonContainer.setVisibility(View.GONE);
+        footerText = checkCoupenPriceDialog.findViewById(R.id.footer_text);
+        footerText.setVisibility(View.VISIBLE);
+        applyOrRemoveButtonContainer = checkCoupenPriceDialog.findViewById(R.id.apply_or_remove_buttons_container);
+        applyOrRemoveButtonContainer.setVisibility(View.GONE);
 
-                LinearLayoutManager layoutManager = new LinearLayoutManager(ProductDetailsActivity.this);
-                layoutManager.setOrientation(RecyclerView.VERTICAL);
-                coupensRecyclerView.setLayoutManager(layoutManager);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(ProductDetailsActivity.this);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+        coupensRecyclerView.setLayoutManager(layoutManager);
 
-                toggalRecyclerView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showDialogRecyclerView();
-                    }
-                });
+        toggalRecyclerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialogRecyclerView();
+            }
+        });
 
-                coupenRedeemButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        checkCoupenPriceDialog.show();
-                    }
-                });
+        coupenRedeemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkCoupenPriceDialog.show();
+            }
+        });
 
 //    =============coupen Dialog================
 
@@ -259,8 +262,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
                                         //    =============coupen Dialog================
                                         originalPrice.setText(productPrice.getText());
-                                        productOriginalPrice=documentSnapshot.get("product price").toString();
-                                        RewordsAdapter rewordsAdapter = new RewordsAdapter(DbQueries.rewardsModelList, true,coupensRecyclerView,selectedCoupen,productOriginalPrice,coupenTitle,coupenExpiryDate,coupenBody,discountedPrice);
+                                        productOriginalPrice = documentSnapshot.get("product price").toString();
+                                        RewordsAdapter rewordsAdapter = new RewordsAdapter(DbQueries.rewardsModelList, true, coupensRecyclerView, selectedCoupen, productOriginalPrice, coupenTitle, coupenExpiryDate, coupenBody, discountedPrice);
                                         coupensRecyclerView.setAdapter(rewordsAdapter);
                                         rewordsAdapter.notifyDataSetChanged();
                                         //    =============coupen Dialog================
@@ -321,10 +324,10 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                             if (DbQueries.wishList.size() == 0) {
                                                 DbQueries.loadWishList(ProductDetailsActivity.this, loadingDialog, false);
                                             }
-                                            if (DbQueries.rewardsModelList.size()==0){
-                                                DbQueries.loadRewards(ProductDetailsActivity.this,loadingDialog,false);
+                                            if (DbQueries.rewardsModelList.size() == 0) {
+                                                DbQueries.loadRewards(ProductDetailsActivity.this, loadingDialog, false);
                                             }
-                                            if (DbQueries.cartList.size() != 0 && DbQueries.wishList.size() != 0 && DbQueries.rewardsModelList.size()!=0){
+                                            if (DbQueries.cartList.size() != 0 && DbQueries.wishList.size() != 0 && DbQueries.rewardsModelList.size() != 0) {
                                                 loadingDialog.dismiss();
                                             }
                                         } else {
@@ -353,7 +356,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
 
                                         if (task.getResult().getDocuments().size() < (long) documentSnapshot.get("stock quantity")) {
-                                            inStock=true;
+                                            inStock = true;
                                             buyNowButton.setVisibility(View.VISIBLE);
                                             addToCartButton.setOnClickListener(new View.OnClickListener() {
                                                 @Override
@@ -387,7 +390,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                                                         documentSnapshot.get("product price").toString(),
                                                                                         documentSnapshot.get("cutted price").toString(),
                                                                                         1,
-                                                                                        (long)documentSnapshot.get("offers applied"),
+                                                                                        (long) documentSnapshot.get("offers applied"),
                                                                                         0,
                                                                                         inStock,
                                                                                         (long) documentSnapshot.get("max quantity"),
@@ -413,7 +416,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                 }
                                             });
                                         } else {
-                                            inStock=false;
+                                            inStock = false;
                                             buyNowButton.setVisibility(View.GONE);
                                             TextView outOfStock = (TextView) addToCartButton.getChildAt(0);
                                             outOfStock.setText("Out of stock");
@@ -640,7 +643,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             documentSnapshot.get("product price").toString(),
                             documentSnapshot.get("cutted price").toString(),
                             1,
-                            (long)documentSnapshot.get("offers applied"),
+                            (long) documentSnapshot.get("offers applied"),
                             0,
                             inStock,
                             (long) documentSnapshot.get("max quantity"),
@@ -649,7 +652,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                     DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
 
                     if (DbQueries.addressesModelList.size() == 0) {
-                        DbQueries.loadAddresses(loadingDialog, ProductDetailsActivity.this,true);
+                        DbQueries.loadAddresses(loadingDialog, ProductDetailsActivity.this, true);
                     } else {
                         loadingDialog.dismiss();
                         Intent deliveryIntent = new Intent(ProductDetailsActivity.this, DeliveryActivity.class);
@@ -759,10 +762,10 @@ public class ProductDetailsActivity extends AppCompatActivity {
             if (DbQueries.wishList.size() == 0) {
                 DbQueries.loadWishList(ProductDetailsActivity.this, loadingDialog, false);
             }
-            if (DbQueries.rewardsModelList.size()==0){
-                DbQueries.loadRewards(ProductDetailsActivity.this,loadingDialog,false);
+            if (DbQueries.rewardsModelList.size() == 0) {
+                DbQueries.loadRewards(ProductDetailsActivity.this, loadingDialog, false);
             }
-            if (DbQueries.cartList.size() != 0 && DbQueries.wishList.size() != 0 && DbQueries.rewardsModelList.size()!=0){
+            if (DbQueries.cartList.size() != 0 && DbQueries.wishList.size() != 0 && DbQueries.rewardsModelList.size() != 0) {
                 loadingDialog.dismiss();
             }
         } else {
@@ -842,7 +845,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.menu_search) {
 
-            Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
+            if (fromSearch) {
+                finish();
+            } else {
+                Intent searchIntent = new Intent(this, SearchActivity.class);
+                startActivity(searchIntent);
+            }
             return true;
 
         } else if (id == R.id.menu_cart) {
@@ -863,5 +871,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
     public void onBackPressed() {
         productDetailsActivity = null;
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        fromSearch = false;
     }
 }

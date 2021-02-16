@@ -15,7 +15,8 @@
         android:roundIcon="@drawable/my_mall_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.UpdateUserInfoActivity"></activity>
+        <activity android:name=".SearchActivity"></activity>
+        <activity android:name=".activity.UpdateUserInfoActivity" />
         <activity android:name=".activity.OTPVarificationActivity" />
         <activity android:name=".activity.CartFragmentActivity" />
         <activity android:name=".activity.ViewAllActivity" />

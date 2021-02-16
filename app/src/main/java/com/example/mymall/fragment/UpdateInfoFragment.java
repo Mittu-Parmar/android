@@ -360,6 +360,7 @@ public class UpdateInfoFragment extends Fragment {
                     }else {
                         DbQueries.fullName=nameField.getText().toString().trim();
                     }
+                    getActivity().finish();
                     Toast.makeText(getContext(), "Successfully Updated", Toast.LENGTH_SHORT).show();
 
                 } else {

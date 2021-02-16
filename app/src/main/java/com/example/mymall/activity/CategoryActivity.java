@@ -5,12 +5,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.mymall.R;
+import com.example.mymall.SearchActivity;
 import com.example.mymall.adapter.HomeAdapter;
 import com.example.mymall.model.HomeModel;
 import com.example.mymall.model.ProductItemModel;
@@ -109,7 +111,8 @@ public class CategoryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id=item.getItemId();
         if (id==R.id.menu_search) {
-            Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
+            Intent searchIntent=new Intent(this, SearchActivity.class);
+            startActivity(searchIntent);
             return true;
         }else if (id==android.R.id.home) {
             finish();

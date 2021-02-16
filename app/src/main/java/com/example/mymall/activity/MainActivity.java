@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.mymall.R;
+import com.example.mymall.SearchActivity;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.fragment.SigninFragment;
 import com.example.mymall.fragment.SignupFragment;
@@ -164,29 +165,41 @@ public class MainActivity extends AppCompatActivity {
             }
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
-            FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid())
-                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DbQueries.fullName = task.getResult().getString("full name");
-                        DbQueries.email = task.getResult().getString("email");
-                        DbQueries.profile = task.getResult().getString("profile");
+            if (DbQueries.email==null) {
+                FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid())
+                        .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DbQueries.fullName = task.getResult().getString("full name");
+                            DbQueries.email = task.getResult().getString("email");
+                            DbQueries.profile = task.getResult().getString("profile");
 
-                        fullName.setText(DbQueries.fullName);
-                        email.setText(DbQueries.email);
-                        if (DbQueries.profile.equals("")) {
-                            addProfileIcon.setVisibility(View.VISIBLE);
+                            fullName.setText(DbQueries.fullName);
+                            email.setText(DbQueries.email);
+                            if (DbQueries.profile.equals("")) {
+                                addProfileIcon.setVisibility(View.VISIBLE);
+                            } else {
+                                addProfileIcon.setVisibility(View.INVISIBLE);
+                                Glide.with(MainActivity.this).load(DbQueries.profile).apply(new RequestOptions().placeholder(R.drawable.place_holder_icon)).into(profileImageView);
+                            }
+
                         } else {
-                            addProfileIcon.setVisibility(View.INVISIBLE);
-                            Glide.with(MainActivity.this).load(DbQueries.profile).apply(new RequestOptions().placeholder(R.drawable.place_holder_icon)).into(profileImageView);
+                            Toast.makeText(MainActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
-
-                    } else {
-                        Toast.makeText(MainActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
+                });
+            }else {
+                fullName.setText(DbQueries.fullName);
+                email.setText(DbQueries.email);
+                if (DbQueries.profile.equals("")) {
+                    profileImageView.setImageResource(R.drawable.profile_place_holder);
+                    addProfileIcon.setVisibility(View.VISIBLE);
+                } else {
+                    addProfileIcon.setVisibility(View.INVISIBLE);
+                    Glide.with(MainActivity.this).load(DbQueries.profile).apply(new RequestOptions().placeholder(R.drawable.place_holder_icon)).into(profileImageView);
                 }
-            });
+            }
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
         }
         if (resetMainActivity) {
@@ -241,7 +254,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.menu_search && currentUser != null) {
-            Toast.makeText(this, "Search clicked", Toast.LENGTH_SHORT).show();
+            Intent searchIntent=new Intent(this, SearchActivity.class);
+            startActivity(searchIntent);
             return true;
         } else if (id == R.id.menu_search && currentUser == null) {
             signInOutDialog.show();

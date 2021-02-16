@@ -92,13 +92,6 @@ public class AccountFragment extends Fragment {
 
         signOutButton = view.findViewById(R.id.sign_out_button);
 
-        name.setText(DbQueries.fullName);
-        email.setText(DbQueries.email);
-        if (!DbQueries.profile.equals("")) {
-            Glide.with(getContext()).load(DbQueries.profile).apply(new RequestOptions().placeholder(R.drawable.profile_place_holder)).into(profileView);
-        }
-
-
         linearContainer.getChildAt(1).setVisibility(View.GONE);
         loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -223,6 +216,16 @@ public class AccountFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        name.setText(DbQueries.fullName);
+        email.setText(DbQueries.email);
+        if (!DbQueries.profile.equals("")) {
+            Glide.with(getContext()).load(DbQueries.profile).apply(new RequestOptions().placeholder(R.drawable.profile_place_holder)).into(profileView);
+        }else {
+            profileView.setImageResource(R.drawable.profile_place_holder);
+        }
+
+
         if (!loadingDialog.isShowing()){
             if (DbQueries.addressesModelList.size() == 0) {
                 currentAddressFullName.setText("No Address");
