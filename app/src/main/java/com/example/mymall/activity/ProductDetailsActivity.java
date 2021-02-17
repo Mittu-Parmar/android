@@ -26,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mymall.R;
-import com.example.mymall.SearchActivity;
 import com.example.mymall.adapter.ProductDetailsAdapter;
 import com.example.mymall.adapter.ProductImagesAdapter;
 import com.example.mymall.adapter.RewordsAdapter;

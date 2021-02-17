@@ -1,6 +1,7 @@
 package com.example.mymall.db_handler;
 
 import android.app.Dialog;
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mymall.R;
 import com.example.mymall.activity.AddAddressActivity;
 import com.example.mymall.activity.DeliveryActivity;
+import com.example.mymall.activity.NotificationActivity;
 import com.example.mymall.activity.ProductDetailsActivity;
 import com.example.mymall.adapter.CategoryAdapter;
 import com.example.mymall.adapter.HomeAdapter;
@@ -30,6 +32,7 @@ import com.example.mymall.model.AddressesModel;
 import com.example.mymall.model.CartItemModel;
 import com.example.mymall.model.CategoryModel;
 import com.example.mymall.model.HomeModel;
+import com.example.mymall.model.NotificationModel;
 import com.example.mymall.model.OrderItemModel;
 import com.example.mymall.model.ProductItemModel;
 import com.example.mymall.model.RewardsModel;
@@ -39,7 +42,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -79,6 +85,10 @@ public class DbQueries {
     public static List<RewardsModel> rewardsModelList = new ArrayList<>();
 
     public static List<OrderItemModel> orderItemModelList = new ArrayList<>();
+
+    public static List<NotificationModel> notificationModelList = new ArrayList<>();
+
+    private static ListenerRegistration registration;
 
     public static void loadCategories(final RecyclerView categoryRecyclerView, final Context context) {
 
@@ -495,15 +505,15 @@ public class DbQueries {
                         for (long x = 1; x < (long) task.getResult().get("list size") + 1; x++) {
                             addressesModelList.add(new AddressesModel(
                                     task.getResult().getBoolean("selected " + x),
-                                    task.getResult().getString("city "+x),
-                                    task.getResult().getString("locality "+x),
-                                    task.getResult().getString("flatNo "+x),
-                                    task.getResult().getString("pinCode "+x),
-                                    task.getResult().getString("landMark "+x),
-                                    task.getResult().getString("name "+x),
-                                    task.getResult().getString("mobileNo "+x),
-                                    task.getResult().getString("alternateMobileNo "+x),
-                                    task.getResult().getString("state "+x))
+                                    task.getResult().getString("city " + x),
+                                    task.getResult().getString("locality " + x),
+                                    task.getResult().getString("flatNo " + x),
+                                    task.getResult().getString("pinCode " + x),
+                                    task.getResult().getString("landMark " + x),
+                                    task.getResult().getString("name " + x),
+                                    task.getResult().getString("mobileNo " + x),
+                                    task.getResult().getString("alternateMobileNo " + x),
+                                    task.getResult().getString("state " + x))
                             );
                             if ((boolean) task.getResult().get("selected " + x)) {
                                 selectedAddress = Integer.parseInt(String.valueOf(x - 1));
@@ -637,6 +647,32 @@ public class DbQueries {
                 }
             }
         });
+    }
+
+    public static void checkNotifications(boolean remove) {
+
+        if (remove) {
+            registration.remove();
+        } else {
+            registration = firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid()).collection("user data").document("my notifications").
+                    addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
+
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                notificationModelList.clear();
+                                for (long x = 0; x < (long) documentSnapshot.get("list size"); x++) {
+                                    notificationModelList.add(new NotificationModel(documentSnapshot.get("image " + x).toString(), documentSnapshot.get("body " + x).toString(), documentSnapshot.getBoolean("readed " + x)));
+                                }
+                                if (NotificationActivity.notificationAdapter != null) {
+                                    NotificationActivity.notificationAdapter.notifyDataSetChanged();
+                                }
+                            }
+
+                        }
+                    });
+        }
+
     }
 
     public static void clearData() {

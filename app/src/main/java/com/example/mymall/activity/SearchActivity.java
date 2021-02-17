@@ -1,4 +1,4 @@
-package com.example.mymall;
+package com.example.mymall.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +13,7 @@ import android.widget.Filterable;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mymall.R;
 import com.example.mymall.adapter.WishlistAdapter;
 import com.example.mymall.model.WishListModel;
 import com.google.android.gms.tasks.OnCompleteListener;

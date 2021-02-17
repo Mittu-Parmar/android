@@ -2,18 +2,13 @@ package com.example.mymall.activity;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,13 +16,11 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.mymall.R;
-import com.example.mymall.SearchActivity;
 import com.example.mymall.db_handler.DbQueries;
 import com.example.mymall.fragment.SigninFragment;
 import com.example.mymall.fragment.SignupFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,7 +30,6 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.GravityCompat;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -165,6 +157,9 @@ public class MainActivity extends AppCompatActivity {
             }
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
+
+            DbQueries.checkNotifications(false);
+
             if (DbQueries.email==null) {
                 FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid())
                         .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -208,6 +203,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         invalidateOptionsMenu();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        DbQueries.checkNotifications(true);
     }
 
     @Override
@@ -261,7 +262,10 @@ public class MainActivity extends AppCompatActivity {
             signInOutDialog.show();
             return false;
         } else if (id == R.id.menu_notification && currentUser != null) {
-            Toast.makeText(this, "Notification clicked", Toast.LENGTH_SHORT).show();
+
+            Intent NotificationIntent=new Intent(this, NotificationActivity.class);
+            startActivity(NotificationIntent);
+
             return true;
         } else if (id == R.id.menu_notification && currentUser == null) {
             signInOutDialog.show();

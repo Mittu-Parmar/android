@@ -9,10 +9,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.mymall.R;
-import com.example.mymall.SearchActivity;
 import com.example.mymall.adapter.HomeAdapter;
 import com.example.mymall.model.HomeModel;
 import com.example.mymall.model.ProductItemModel;
