@@ -158,9 +158,7 @@ public class MainActivity extends AppCompatActivity {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
 
-            DbQueries.checkNotifications(false);
-
-            if (DbQueries.email==null) {
+            if (DbQueries.email == null) {
                 FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid())
                         .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -184,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-            }else {
+            } else {
                 fullName.setText(DbQueries.fullName);
                 email.setText(DbQueries.email);
                 if (DbQueries.profile.equals("")) {
@@ -208,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        DbQueries.checkNotifications(true);
+        DbQueries.checkNotifications(true, null);
     }
 
     @Override
@@ -233,19 +231,36 @@ public class MainActivity extends AppCompatActivity {
                     bedgeCount.setText("99");
                 }
             }
-        }
 
-        cartItem.getActionView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentUser == null) {
-                    signInOutDialog.show();
-                } else {
-                    Intent cartFragmentActivityIntent = new Intent(MainActivity.this, CartFragmentActivity.class);
-                    startActivity(cartFragmentActivityIntent);
+            cartItem.getActionView().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (currentUser == null) {
+                        signInOutDialog.show();
+                    } else {
+                        Intent cartFragmentActivityIntent = new Intent(MainActivity.this, CartFragmentActivity.class);
+                        startActivity(cartFragmentActivityIntent);
+                    }
                 }
-            }
-        });
+            });
+
+            MenuItem notifyItem = menu.findItem(R.id.menu_notification);
+            notifyItem.setActionView(R.layout.badge_layout);
+            ImageView notifyIcon = notifyItem.getActionView().findViewById(R.id.bedge_icon);
+            notifyIcon.setImageResource(R.drawable.bell_icon);
+            TextView notifyCount = notifyItem.getActionView().findViewById(R.id.bedge_count);
+
+            DbQueries.checkNotifications(false,notifyCount);
+
+            notifyItem.getActionView().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent NotificationIntent = new Intent(MainActivity.this, NotificationActivity.class);
+                    startActivity(NotificationIntent);
+                }
+            });
+
+        }
         return true;
     }
 
@@ -255,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.menu_search && currentUser != null) {
-            Intent searchIntent=new Intent(this, SearchActivity.class);
+            Intent searchIntent = new Intent(this, SearchActivity.class);
             startActivity(searchIntent);
             return true;
         } else if (id == R.id.menu_search && currentUser == null) {
@@ -263,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         } else if (id == R.id.menu_notification && currentUser != null) {
 
-            Intent NotificationIntent=new Intent(this, NotificationActivity.class);
+            Intent NotificationIntent = new Intent(this, NotificationActivity.class);
             startActivity(NotificationIntent);
 
             return true;

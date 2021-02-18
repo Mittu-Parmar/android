@@ -1,7 +1,6 @@
 package com.example.mymall.db_handler;
 
 import android.app.Dialog;
-import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -649,7 +648,7 @@ public class DbQueries {
         });
     }
 
-    public static void checkNotifications(boolean remove) {
+    public static void checkNotifications(boolean remove, @Nullable final TextView notifyCount) {
 
         if (remove) {
             registration.remove();
@@ -661,8 +660,24 @@ public class DbQueries {
 
                             if (documentSnapshot != null && documentSnapshot.exists()) {
                                 notificationModelList.clear();
+                                int unread = 0;
                                 for (long x = 0; x < (long) documentSnapshot.get("list size"); x++) {
-                                    notificationModelList.add(new NotificationModel(documentSnapshot.get("image " + x).toString(), documentSnapshot.get("body " + x).toString(), documentSnapshot.getBoolean("readed " + x)));
+                                    notificationModelList.add(0,new NotificationModel(documentSnapshot.get("image " + x).toString(), documentSnapshot.get("body " + x).toString(), documentSnapshot.getBoolean("readed " + x)));
+                                    if (!documentSnapshot.getBoolean("readed " + x)) {
+                                        unread++;
+                                        if (notifyCount != null) {
+                                            if (unread > 0) {
+                                                notifyCount.setVisibility(View.VISIBLE);
+                                                if (unread < 99) {
+                                                    notifyCount.setText(String.valueOf(unread));
+                                                } else {
+                                                    notifyCount.setText("99");
+                                                }
+                                            }else {
+                                                notifyCount.setVisibility(View.INVISIBLE);
+                                            }
+                                        }
+                                    }
                                 }
                                 if (NotificationActivity.notificationAdapter != null) {
                                     NotificationActivity.notificationAdapter.notifyDataSetChanged();
