@@ -26,6 +26,10 @@ import com.example.mymall.model.HomeModel;
 import com.example.mymall.model.ProductItemModel;
 import com.example.mymall.model.SliderModel;
 import com.example.mymall.model.WishListModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
@@ -33,7 +37,8 @@ public class HomeAdapter extends RecyclerView.Adapter {
 
     private List<HomeModel> homeModelList;
     RecyclerView.RecycledViewPool recycledViewPool;
-    private int lastPosition=-1;
+    private int lastPosition = -1;
+    private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     public HomeAdapter(List<HomeModel> homeModelList) {
         this.homeModelList = homeModelList;
@@ -93,8 +98,8 @@ public class HomeAdapter extends RecyclerView.Adapter {
             case HomeModel.HORIZONTAL_PRODUCT_VIEW:
                 String horizontalLayoutTitle = homeModelList.get(position).getTitle();
                 List<ProductItemModel> horizontalProductItemModelList = homeModelList.get(position).getProductItemModelList();
-                List<WishListModel> viewAllProductsList=homeModelList.get(position).getViewAllProductModelList();
-                ((HorizontalProductViewHolder) holder).setHorizontalProductLayout(horizontalLayoutTitle, horizontalProductItemModelList,viewAllProductsList);
+                List<WishListModel> viewAllProductsList = homeModelList.get(position).getViewAllProductModelList();
+                ((HorizontalProductViewHolder) holder).setHorizontalProductLayout(horizontalLayoutTitle, horizontalProductItemModelList, viewAllProductsList);
                 break;
             case HomeModel.GRID_PRODUCT_VIEW:
                 String gridLayoutTitle = homeModelList.get(position).getTitle();
@@ -104,10 +109,10 @@ public class HomeAdapter extends RecyclerView.Adapter {
             default:
                 return;
         }
-        if (lastPosition < position){
-            Animation animation= AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.fragment_fade_enter);
+        if (lastPosition < position) {
+            Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fragment_fade_enter);
             holder.itemView.setAnimation(animation);
-            lastPosition=position;
+            lastPosition = position;
         }
     }
 
@@ -161,8 +166,50 @@ public class HomeAdapter extends RecyclerView.Adapter {
             horizontalLayoutButton = itemView.findViewById(R.id.horizontal_scroll_layout_button);
         }
 
-        private void setHorizontalProductLayout(final String title, List<ProductItemModel> productItemModelList, final List<WishListModel> viewAllProductsList) {
+        private void setHorizontalProductLayout(final String title, final List<ProductItemModel> productItemModelList, final List<WishListModel> viewAllProductsList) {
             horizontalLayoutTitle.setText(title);
+
+            for (final ProductItemModel model : productItemModelList) {
+
+                if (!model.getId().isEmpty() && model.getProductTitle().isEmpty()) {
+
+                    firebaseFirestore.collection("products").
+                            document(model.getId()).
+                            get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                model.setProductTitle(task.getResult().getString("product title"));
+                                model.setProductImage(task.getResult().getString("product image 1"));
+                                model.setProductPrice(task.getResult().getString("product price"));
+
+                                WishListModel wishListModel = viewAllProductsList.
+                                        get(productItemModelList.indexOf(model));
+
+                                wishListModel.setTotalRatings(task.getResult().getLong("total ratings"));
+                                wishListModel.setRating(task.getResult().getString("average rating"));
+                                wishListModel.setProductTitle(task.getResult().getString("product title"));
+                                wishListModel.setProductPrice(task.getResult().getString("product price"));
+                                wishListModel.setImage(task.getResult().getString("product image 1"));
+                                wishListModel.setFreeCoupens(task.getResult().getLong("free coupens"));
+                                wishListModel.setCuttedPrice(task.getResult().getString("cutted price"));
+                                wishListModel.setCod(task.getResult().getBoolean("cod"));
+                                wishListModel.setInStock(task.getResult().getLong("stock quantity") > 0);
+
+                                if (productItemModelList.indexOf(model) == productItemModelList.size() - 1) {
+                                    if (horizontalRecyclerView.getAdapter() != null) {
+                                        horizontalRecyclerView.getAdapter().notifyDataSetChanged();
+                                    }
+                                }
+
+                            } else {
+                                ////do nothing
+                            }
+                        }
+                    });
+                }
+            }
+
             if (productItemModelList.size() >= 8) {
                 horizontalLayoutButton.setVisibility(View.VISIBLE);
             } else {
@@ -179,7 +226,7 @@ public class HomeAdapter extends RecyclerView.Adapter {
             horizontalLayoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ViewAllActivity.wishListModelList =viewAllProductsList;
+                    ViewAllActivity.wishListModelList = viewAllProductsList;
                     Intent viewAllIntent = new Intent(itemView.getContext(), ViewAllActivity.class);
                     viewAllIntent.putExtra("Layout_code", 0);
                     viewAllIntent.putExtra("title", title);
@@ -207,6 +254,54 @@ public class HomeAdapter extends RecyclerView.Adapter {
         private void setGridProductLayout(final String title, final List<ProductItemModel> productItemModelList) {
             gridLayoytTitle.setText(title);
 
+            for (final ProductItemModel model : productItemModelList) {
+
+                if (!model.getId().isEmpty() && model.getProductTitle().isEmpty()) {
+
+                    firebaseFirestore.collection("products").
+                            document(model.getId()).
+                            get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                model.setProductTitle(task.getResult().getString("product title"));
+                                model.setProductImage(task.getResult().getString("product image 1"));
+                                model.setProductPrice(task.getResult().getString("product price"));
+
+
+                                if (productItemModelList.indexOf(model) == productItemModelList.size() - 1) {
+
+                                    setGridData(title, productItemModelList);
+
+                                    if (!title.equals("")) {
+                                        gridLayoytButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                ViewAllActivity.productItemModelList = productItemModelList;
+                                                Intent viewAllIntent = new Intent(itemView.getContext(), ViewAllActivity.class);
+                                                viewAllIntent.putExtra("Layout_code", 1);
+                                                viewAllIntent.putExtra("title", title);
+                                                itemView.getContext().startActivity(viewAllIntent);
+                                            }
+                                        });
+                                    }
+
+                                }
+
+                            } else {
+                                ////do nothing
+                            }
+                        }
+                    });
+                }
+            }
+
+            setGridData(title, productItemModelList);
+
+        }
+
+        private void setGridData(String title, final List<ProductItemModel> productItemModelList) {
+
             for (int x = 0; x < 4; x++) {
                 ImageView productImage = gridLayout.getChildAt(x).findViewById(R.id.horizontal_scroll_view_product_img);
                 TextView productTitle = gridLayout.getChildAt(x).findViewById(R.id.horizontal_scroll_view_product_title);
@@ -218,7 +313,7 @@ public class HomeAdapter extends RecyclerView.Adapter {
                 productDiscription.setText(productItemModelList.get(x).getProductDescription());
                 productPrice.setText("Rs." + productItemModelList.get(x).getProductPrice() + "/-");
 
-                if (!title.equals("")){
+                if (!title.equals("")) {
                     final int finalX = x;
                     gridLayout.getChildAt(x).setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -232,18 +327,6 @@ public class HomeAdapter extends RecyclerView.Adapter {
                 }
             }
 
-            if (!title.equals("")) {
-                gridLayoytButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ViewAllActivity.productItemModelList = productItemModelList;
-                        Intent viewAllIntent = new Intent(itemView.getContext(), ViewAllActivity.class);
-                        viewAllIntent.putExtra("Layout_code", 1);
-                        viewAllIntent.putExtra("title", title);
-                        itemView.getContext().startActivity(viewAllIntent);
-                    }
-                });
-            }
         }
     }
 }

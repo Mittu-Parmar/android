@@ -134,40 +134,45 @@ public class DbQueries {
 
                                     List<WishListModel> viewAllprodectModelList = new ArrayList<>();
                                     List<ProductItemModel> productItemModelList = new ArrayList<>();
-                                    for (long i = 1; i <= (long) documentSnapshot.get("number of products"); i++) {
+
+                                    ArrayList<String> productIds = (ArrayList<String>) documentSnapshot.get("products");
+
+                                    for (String productId : productIds) {
                                         productItemModelList.add(new ProductItemModel(
-                                                documentSnapshot.get("product id " + i).toString(),
-                                                documentSnapshot.get("product image " + i).toString(),
-                                                documentSnapshot.get("product title " + i).toString(),
-                                                documentSnapshot.get("product sub title " + i).toString(),
-                                                documentSnapshot.get("product price " + i).toString()));
+                                                productId,
+                                                "",
+                                                "",
+                                                "",
+                                                ""));
 
                                         viewAllprodectModelList.add(new WishListModel(
-                                                documentSnapshot.get("product id " + i).toString(),
-                                                documentSnapshot.get("product image " + i).toString(),
-                                                documentSnapshot.get("product full title " + i).toString(),
-                                                (long) documentSnapshot.get("free coupen " + i),
-                                                documentSnapshot.get("average rating " + i).toString(),
-                                                (long) documentSnapshot.get("total rating " + i),
-                                                documentSnapshot.get("product price " + i).toString(),
-                                                documentSnapshot.get("cutted price " + i).toString(),
-                                                (boolean) documentSnapshot.get("cod " + i),
-                                                (boolean) documentSnapshot.get("in stock " + i)));
+                                                productId,
+                                                "",
+                                                "",
+                                                0,
+                                                "",
+                                                0,
+                                                "",
+                                                "",
+                                                false,
+                                                false));
                                     }
                                     lists.get(index).add(new HomeModel(HomeModel.HORIZONTAL_PRODUCT_VIEW, documentSnapshot.get("layout title").toString(), productItemModelList, viewAllprodectModelList));
 
                                 } else if ((long) documentSnapshot.get("view type") == HomeModel.GRID_PRODUCT_VIEW) {
 
-                                    List<ProductItemModel> productItemModelList = new ArrayList<>();
-                                    for (long i = 1; i <= (long) documentSnapshot.get("number of products"); i++) {
-                                        productItemModelList.add(new ProductItemModel(
-                                                documentSnapshot.get("product id " + i).toString(),
-                                                documentSnapshot.get("product image " + i).toString(),
-                                                documentSnapshot.get("product title " + i).toString(),
-                                                documentSnapshot.get("product sub title " + i).toString(), documentSnapshot.get("product price " + i).toString()));
-                                    }
-                                    lists.get(index).add(new HomeModel(HomeModel.GRID_PRODUCT_VIEW, documentSnapshot.get("layout title").toString(), productItemModelList));
+                                    List<ProductItemModel> gridProductItemModelList = new ArrayList<>();
+                                    ArrayList<String> productIds = (ArrayList<String>) documentSnapshot.get("products");
 
+                                    for (String productId : productIds) {
+                                        gridProductItemModelList.add(new ProductItemModel(
+                                                productId,
+                                                "",
+                                                "",
+                                                "",
+                                                ""));
+                                    }
+                                    lists.get(index).add(new HomeModel(HomeModel.GRID_PRODUCT_VIEW, documentSnapshot.get("layout title").toString(), gridProductItemModelList));
                                 }
                             }
 
@@ -662,7 +667,7 @@ public class DbQueries {
                                 notificationModelList.clear();
                                 int unread = 0;
                                 for (long x = 0; x < (long) documentSnapshot.get("list size"); x++) {
-                                    notificationModelList.add(0,new NotificationModel(documentSnapshot.get("image " + x).toString(), documentSnapshot.get("body " + x).toString(), documentSnapshot.getBoolean("readed " + x)));
+                                    notificationModelList.add(0, new NotificationModel(documentSnapshot.get("image " + x).toString(), documentSnapshot.get("body " + x).toString(), documentSnapshot.getBoolean("readed " + x)));
                                     if (!documentSnapshot.getBoolean("readed " + x)) {
                                         unread++;
                                         if (notifyCount != null) {
@@ -673,7 +678,7 @@ public class DbQueries {
                                                 } else {
                                                     notifyCount.setText("99");
                                                 }
-                                            }else {
+                                            } else {
                                                 notifyCount.setVisibility(View.INVISIBLE);
                                             }
                                         }
