@@ -181,6 +181,7 @@ public class HomeAdapter extends RecyclerView.Adapter {
                             if (task.isSuccessful()) {
                                 model.setProductTitle(task.getResult().getString("product title"));
                                 model.setProductImage(task.getResult().getString("product image 1"));
+                                model.setProductDescription(task.getResult().getString("product small description"));
                                 model.setProductPrice(task.getResult().getString("product price"));
 
                                 WishListModel wishListModel = viewAllProductsList.
@@ -266,8 +267,8 @@ public class HomeAdapter extends RecyclerView.Adapter {
                             if (task.isSuccessful()) {
                                 model.setProductTitle(task.getResult().getString("product title"));
                                 model.setProductImage(task.getResult().getString("product image 1"));
+                                model.setProductDescription(task.getResult().getString("product small description"));
                                 model.setProductPrice(task.getResult().getString("product price"));
-
 
                                 if (productItemModelList.indexOf(model) == productItemModelList.size() - 1) {
 
